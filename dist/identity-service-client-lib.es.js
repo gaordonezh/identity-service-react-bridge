@@ -416,6 +416,6 @@ var N = t({}), P = () => n(N), F = ({ options: t, expireDate: n, children: o }) 
 	});
 };
 //#endregion
-export { F as AuthenticationProvider, M as createIdentityServiceAxiosInstance, P as useIdentityServiceAuthentication };
+export { F as IdentityServiceAuthenticationProvider, M as createIdentityServiceAxiosInstance, P as useIdentityServiceAuthentication };
 
 //# sourceMappingURL=identity-service-client-lib.es.js.map

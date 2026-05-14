@@ -16,14 +16,14 @@ declare interface AuthenticationContentValues {
     refresh(): Promise<boolean>;
 }
 
-export declare const AuthenticationProvider: ({ options, expireDate, children }: PropsWithChildren<AuthenticationProviderProps>) => JSX.Element;
+export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
 
-declare interface AuthenticationProviderProps {
+export declare const IdentityServiceAuthenticationProvider: ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
+
+declare interface IdentityServiceAuthenticationProviderProps {
     expireDate: Date;
     options: AuthClientOptions;
 }
-
-export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
 
 export declare const useIdentityServiceAuthentication: () => AuthenticationContentValues;
 
