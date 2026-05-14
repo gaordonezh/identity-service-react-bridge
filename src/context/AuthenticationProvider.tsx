@@ -1,51 +1,90 @@
-import { createContext, Fragment, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { AuthEventEnum, type AuthenticationContentValues, type AuthenticationProviderProps } from '../types/global';
-import ssoImg from '../assets/sso-logo.png';
+import { createContext, Fragment, useContext, useEffect, useLayoutEffect, useMemo, useState, type PropsWithChildren } from 'react';
+import { type AuthenticationContentValues, type AuthenticationProviderProps } from '../types/global';
+import axios, { AxiosError, type AxiosInstance, type CreateAxiosDefaults } from 'axios';
+import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/identity-service-axios-interceptors';
+import IdentityServiceClient from '../core/identity-service-client';
 import PulseLoader from '../components/PulseLoader';
+import ssoImg from '../assets/sso-logo.png';
+
+let ISClientInstance: IdentityServiceClient | undefined;
+
+export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults<any>): AxiosInstance {
+  const instance = axios.create({
+    withCredentials: true,
+    timeout: 3000,
+    ...initConfig,
+  });
+
+  instance.interceptors.request.use((config) => axiosRequestInterceptor(config, ISClientInstance));
+
+  instance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+      const config = await axiosResponseInterceptor(error, ISClientInstance);
+      return instance(config);
+    },
+  );
+
+  return instance;
+}
 
 const AuthenticationContent = createContext({} as AuthenticationContentValues);
-
 export const useIdentityServiceAuthentication = (): AuthenticationContentValues => useContext(AuthenticationContent);
 
-const AuthenticationProvider = ({ client, expireDate, children }: PropsWithChildren<AuthenticationProviderProps>) => {
+const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChildren<AuthenticationProviderProps>) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<string | null>(client.getAccessToken());
+  const [authenticated, setAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const unsubLogin = client.on(AuthEventEnum.LOGIN, () => {
-      setAccessToken(client.getAccessToken());
-    });
+  useLayoutEffect(() => {
+    initAndValidateISInstance();
+  }, []);
 
-    const unsubToken = client.on(AuthEventEnum.TOKEN, () => {
-      setAccessToken(client.getAccessToken());
-    });
+  const initAndValidateISInstance = async () => {
+    try {
+      setIsLoading(true);
 
-    const unsubLogout = client.on(AuthEventEnum.LOGOUT, () => {
-      setAccessToken(null);
-    });
+      const instance = new IdentityServiceClient(options);
+      ISClientInstance = instance;
+      // FALTAN LAS VALIDACIONES DE ACCESO
+      // if (!instance.authenticated || !instance.tokenParsed) return;
+      // const hasAccess = instance.hasResourceRole(accessName);
+      // if (!hasAccess) setDenyApplicationAccess(true);
 
-    async function bootstrap() {
-      try {
-        setIsLoading(true);
+      const handled = await instance.handleCallback();
+      if (!handled) await instance.restoreSession();
 
-        const handled = await client.handleCallback();
-        if (!handled) {
-          await client.restoreSession();
-        }
-      } finally {
-        setAccessToken(client.getAccessToken());
-        setIsLoading(false);
-      }
+      const authenticated = instance.isAuthenticated();
+      if (!authenticated) return;
+      setAuthenticated(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    bootstrap();
+  // TODO: POSIBLEMENTE LOS EVENTOS YA NO VAYAN
+  useEffect(() => {
+    if (!ISClientInstance) return;
+
+    // const unsubLogin = ISClientInstance.on(AuthEventEnum.LOGIN, () => {
+    //   console.log('unsubLogin');
+    // });
+
+    // const unsubToken = ISClientInstance.on(AuthEventEnum.TOKEN, () => {
+    //   console.log('unsubToken');
+    // });
+
+    // const unsubLogout = ISClientInstance.on(AuthEventEnum.LOGOUT, () => {
+    //   console.log('unsubLogout');
+    // });
 
     return () => {
-      unsubLogin();
-      unsubToken();
-      unsubLogout();
+      // unsubLogin();
+      // unsubToken();
+      // unsubLogout();
     };
-  }, [client]);
+  }, [ISClientInstance]);
 
   const showAlert = useMemo(() => {
     const y = expireDate.getFullYear();
@@ -58,19 +97,16 @@ const AuthenticationProvider = ({ client, expireDate, children }: PropsWithChild
 
   const values: AuthenticationContentValues = useMemo(
     () => ({
-      accessToken,
-      login: () => client.login(),
-      logout: () => client.logout(),
-      refresh: () => client.refresh(),
+      login: () => ISClientInstance!.login(),
+      logout: () => ISClientInstance!.logout(),
+      refresh: () => ISClientInstance!.refresh(),
     }),
-    [accessToken, client],
+    [ISClientInstance],
   );
-
-  console.log(accessToken);
 
   return (
     <AuthenticationContent.Provider value={values}>
-      {!!accessToken && !isLoading ? (
+      {authenticated && !isLoading ? (
         children
       ) : (
         <main className="sso__main">
@@ -101,7 +137,7 @@ const AuthenticationProvider = ({ client, expireDate, children }: PropsWithChild
                   Continue con el <code>SSO Netappperu SAC</code> siguiendo los pasos que se le indique...
                 </p>
 
-                <button className="sso__button sso__button--full" onClick={() => client.login()}>
+                <button className="sso__button sso__button--full" onClick={() => values.login()}>
                   INGRESAR SSO NAPCONTABLE
                 </button>
               </Fragment>

@@ -1,4 +1,4 @@
-import type { AuthClient } from '../utils/auth';
+import type { AxiosRequestConfig } from 'axios';
 
 export interface AuthClientOptions {
   clientId: string;
@@ -21,13 +21,16 @@ export enum AuthEventEnum {
 }
 
 export interface AuthenticationContentValues {
-  accessToken: string | null;
   login(): Promise<void>;
   logout(): Promise<void>;
   refresh(): Promise<boolean>;
 }
 
 export interface AuthenticationProviderProps {
-  client: AuthClient;
   expireDate: Date;
+  options: AuthClientOptions;
+}
+
+export interface RetryableAxiosConfig extends AxiosRequestConfig {
+  _retry?: boolean;
 }
