@@ -27,7 +27,3 @@ export interface RetryableAxiosConfig extends AxiosRequestConfig {
 }
 
 export type AuthBroadcastEvent = 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
-
-// export type AuthBroadcastEvent = {
-//   type: 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
-// };
