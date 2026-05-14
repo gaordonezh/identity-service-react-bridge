@@ -25,3 +25,9 @@ export interface AuthenticationProviderProps {
 export interface RetryableAxiosConfig extends AxiosRequestConfig {
   _retry?: boolean;
 }
+
+export type AuthBroadcastEvent = 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
+
+// export type AuthBroadcastEvent = {
+//   type: 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
+// };

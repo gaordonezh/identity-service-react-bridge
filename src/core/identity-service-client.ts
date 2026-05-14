@@ -1,14 +1,23 @@
-import { type AuthClientOptions} from '../types/global';
+import { type AuthClientOptions } from '../types/global';
 import { generatePKCE } from '../utils/pkce';
 import { savePKCE, getPKCE, clearPKCE, saveState, getState, clearState } from '../utils/storage';
 import { getTokenExpiration } from '../utils/jwt';
+import { AuthBroadcast } from './auth-broadcast';
 
 class IdentityServiceClient {
   private accessToken: string | null = null;
   private refreshPromise: Promise<boolean> | null = null;
   private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
+  private readonly broadcast = new AuthBroadcast();
 
-  constructor(private readonly options: AuthClientOptions) {}
+  constructor(private readonly options: AuthClientOptions) {
+    this.broadcast.subscribe((event) => {
+      if (event === 'LOGOUT') {
+        this.setAccessToken(null);
+        this.redirect();
+      }
+    });
+  }
 
   private setAccessToken(token: string | null) {
     this.accessToken = token;
@@ -23,6 +32,7 @@ class IdentityServiceClient {
 
   private scheduleRefresh(token: string) {
     this.clearRefreshTimer();
+
     const expiresAt = getTokenExpiration(token);
     const now = Date.now();
     const refreshIn = expiresAt - now - 30_000;
@@ -53,6 +63,7 @@ class IdentityServiceClient {
 
     if (!response.ok) {
       this.setAccessToken(null);
+      this.broadcast.publish('SESSION_EXPIRED');
       return false;
     }
 
@@ -60,6 +71,10 @@ class IdentityServiceClient {
     this.setAccessToken(data.accessToken);
 
     return true;
+  }
+
+  private redirect() {
+    globalThis.location.href = this.options.logoutRedirectUri;
   }
 
   getAccessToken() {
@@ -84,6 +99,8 @@ class IdentityServiceClient {
     url.searchParams.set('redirect_uri', this.options.redirectUri);
     url.searchParams.set('code_challenge', challenge);
     url.searchParams.set('state', state);
+
+    this.broadcast.publish('LOGIN');
 
     globalThis.location.href = url.toString();
   }
@@ -177,7 +194,9 @@ class IdentityServiceClient {
 
     this.setAccessToken(null);
 
-    globalThis.location.href = this.options.logoutRedirectUri;
+    this.broadcast.publish('LOGOUT');
+
+    this.redirect();
   }
 }
 
