@@ -9,15 +9,14 @@ Colocar el nombre y la libreria apuntando al repositorio y al tag que se quiere 
 ```json
 {
   "dependencies": {
-    "keycloak-auth-core": "github:gaordonezh/keycloak-auth-core#v1.0.0"
+    "identity-service-react-bridge": "github:gaordonezh/identity-service-react-bridge#v1.0.0"
   }
 },
 ```
 
 Expone:
 
-- KeycloakAuthenticationProvider: Contexto global para inicializar la config.
-- createKeycloakAxiosInstance: Función para crear una instancia de axios con la el token y refresh token incrustado.
-- KeycloakLogin: Componente para hacer login.
-- useKeycloakAuthentication: Donde se almacena la info del usuario, login y logout.
+- IdentityServiceAuthenticationProvider: Contexto global para inicializar la config.
+- createIdentityServiceAxiosInstance: Función para crear una instancia de axios con la el token y refresh token incrustado.
+- useIdentityServiceAuthentication: Donde se almacena la info del usuario, login y logout.
 - Estilos globales del autorizador

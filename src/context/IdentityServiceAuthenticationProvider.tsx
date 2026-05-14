@@ -1,5 +1,5 @@
 import { createContext, Fragment, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { type AuthenticationContentValues, type AuthenticationProviderProps } from '../types/global';
+import { type AuthenticationContentValues, type IdentityServiceAuthenticationProviderProps } from '../types/global';
 import axios, { AxiosError, type AxiosInstance, type CreateAxiosDefaults } from 'axios';
 import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/identity-service-axios-interceptors';
 import IdentityServiceClient from '../core/identity-service-client';
@@ -31,7 +31,7 @@ export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefau
 const AuthenticationContent = createContext({} as AuthenticationContentValues);
 export const useIdentityServiceAuthentication = (): AuthenticationContentValues => useContext(AuthenticationContent);
 
-const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChildren<AuthenticationProviderProps>) => {
+const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => {
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -121,4 +121,4 @@ const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChil
   );
 };
 
-export default AuthenticationProvider;
+export default IdentityServiceAuthenticationProvider;

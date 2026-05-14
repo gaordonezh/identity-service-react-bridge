@@ -13,7 +13,7 @@ export interface AuthenticationContentValues {
   refresh(): Promise<boolean>;
 }
 
-export interface AuthenticationProviderProps {
+export interface IdentityServiceAuthenticationProviderProps {
   expireDate: Date;
   options: AuthClientOptions;
 }
