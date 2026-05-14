@@ -8,7 +8,7 @@ import ssoImg from '../assets/sso-logo.png';
 
 let ISClientInstance: IdentityServiceClient | undefined;
 
-export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults<any>): AxiosInstance {
+export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance {
   const instance = axios.create({
     withCredentials: true,
     timeout: 3000,
@@ -35,10 +35,6 @@ const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChil
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
-  useEffect(() => {
-    initAndValidateISInstance();
-  }, []);
-
   const initAndValidateISInstance = async () => {
     try {
       setIsLoading(true);
@@ -57,6 +53,10 @@ const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChil
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    initAndValidateISInstance();
+  }, [ISClientInstance]);
 
   const showAlert = useMemo(() => {
     const y = expireDate.getFullYear();

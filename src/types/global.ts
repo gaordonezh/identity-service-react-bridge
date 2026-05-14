@@ -7,10 +7,6 @@ export interface AuthClientOptions {
   logoutRedirectUri: string;
 }
 
-export interface AuthTokens {
-  accessToken: string;
-}
-
 export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
