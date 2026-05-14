@@ -1,4 +1,4 @@
-import { createContext, Fragment, useContext, useEffect, useLayoutEffect, useMemo, useState, type PropsWithChildren } from 'react';
+import { createContext, Fragment, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import { type AuthenticationContentValues, type AuthenticationProviderProps } from '../types/global';
 import axios, { AxiosError, type AxiosInstance, type CreateAxiosDefaults } from 'axios';
 import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/identity-service-axios-interceptors';
@@ -35,7 +35,7 @@ const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChil
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     initAndValidateISInstance();
   }, []);
 
@@ -45,46 +45,18 @@ const AuthenticationProvider = ({ options, expireDate, children }: PropsWithChil
 
       const instance = new IdentityServiceClient(options);
       ISClientInstance = instance;
-      // FALTAN LAS VALIDACIONES DE ACCESO
-      // if (!instance.authenticated || !instance.tokenParsed) return;
-      // const hasAccess = instance.hasResourceRole(accessName);
-      // if (!hasAccess) setDenyApplicationAccess(true);
 
       const handled = await instance.handleCallback();
       if (!handled) await instance.restoreSession();
 
       const authenticated = instance.isAuthenticated();
-      if (!authenticated) return;
-      setAuthenticated(true);
+      setAuthenticated(authenticated);
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // TODO: POSIBLEMENTE LOS EVENTOS YA NO VAYAN
-  useEffect(() => {
-    if (!ISClientInstance) return;
-
-    // const unsubLogin = ISClientInstance.on(AuthEventEnum.LOGIN, () => {
-    //   console.log('unsubLogin');
-    // });
-
-    // const unsubToken = ISClientInstance.on(AuthEventEnum.TOKEN, () => {
-    //   console.log('unsubToken');
-    // });
-
-    // const unsubLogout = ISClientInstance.on(AuthEventEnum.LOGOUT, () => {
-    //   console.log('unsubLogout');
-    // });
-
-    return () => {
-      // unsubLogin();
-      // unsubToken();
-      // unsubLogout();
-    };
-  }, [ISClientInstance]);
 
   const showAlert = useMemo(() => {
     const y = expireDate.getFullYear();

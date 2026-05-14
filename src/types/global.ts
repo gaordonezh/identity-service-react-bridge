@@ -11,15 +11,6 @@ export interface AuthTokens {
   accessToken: string;
 }
 
-export type Listener = () => void;
-
-export enum AuthEventEnum {
-  LOGIN = 'login',
-  LOGOUT = 'logout',
-  TOKEN = 'token',
-  RESTORED = 'session_restored',
-}
-
 export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;

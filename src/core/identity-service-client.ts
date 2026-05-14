@@ -1,25 +1,14 @@
-import { AuthEventEnum, type AuthClientOptions, type Listener } from '../types/global';
+import { type AuthClientOptions} from '../types/global';
 import { generatePKCE } from '../utils/pkce';
 import { savePKCE, getPKCE, clearPKCE, saveState, getState, clearState } from '../utils/storage';
 import { getTokenExpiration } from '../utils/jwt';
 
 class IdentityServiceClient {
   private accessToken: string | null = null;
-  private readonly listeners = new Map<AuthEventEnum, Set<Listener>>();
   private refreshPromise: Promise<boolean> | null = null;
   private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly options: AuthClientOptions) {}
-
-  // private emit(event: AuthEventEnum) {
-  //   const listeners = this.listeners.get(event);
-  //   if (!listeners) {
-  //     return;
-  //   }
-  //   for (const listener of listeners) {
-  //     listener();
-  //   }
-  // }
 
   private setAccessToken(token: string | null) {
     this.accessToken = token;
@@ -64,28 +53,14 @@ class IdentityServiceClient {
 
     if (!response.ok) {
       this.setAccessToken(null);
-      // this.emit(AuthEventEnum.LOGOUT);
       return false;
     }
 
     const data = await response.json();
     this.setAccessToken(data.accessToken);
-    // this.emit(AuthEventEnum.TOKEN);
 
     return true;
   }
-
-  // on(event: AuthEventEnum, listener: Listener) {
-  //   if (!this.listeners.has(event)) {
-  //     this.listeners.set(event, new Set());
-  //   }
-
-  //   this.listeners.get(event)?.add(listener);
-
-  //   return () => {
-  //     this.listeners.get(event)?.delete(listener);
-  //   };
-  // }
 
   getAccessToken() {
     return this.accessToken;
@@ -156,9 +131,6 @@ class IdentityServiceClient {
 
     this.setAccessToken(data.accessToken);
 
-    // this.emit(AuthEventEnum.LOGIN);
-    // this.emit(AuthEventEnum.TOKEN);
-
     clearPKCE();
     clearState();
 
@@ -204,7 +176,6 @@ class IdentityServiceClient {
     });
 
     this.setAccessToken(null);
-    // this.emit(AuthEventEnum.LOGOUT);
 
     globalThis.location.href = this.options.logoutRedirectUri;
   }
