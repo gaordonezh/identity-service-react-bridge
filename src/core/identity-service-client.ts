@@ -26,7 +26,6 @@ class IdentityServiceClient {
       this.clearRefreshTimer();
       return;
     }
-
     this.scheduleRefresh(token);
   }
 
@@ -35,13 +34,12 @@ class IdentityServiceClient {
 
     const expiresAt = getTokenExpiration(token);
     const now = Date.now();
-    const refreshIn = expiresAt - now - 30_000;
+    const refreshIn = expiresAt - now - 1000;
 
     if (refreshIn <= 0) {
       this.refresh();
       return;
     }
-
     this.refreshTimeout = setTimeout(() => {
       this.refresh();
     }, refreshIn);
@@ -50,7 +48,6 @@ class IdentityServiceClient {
   private clearRefreshTimer() {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout);
-
       this.refreshTimeout = null;
     }
   }

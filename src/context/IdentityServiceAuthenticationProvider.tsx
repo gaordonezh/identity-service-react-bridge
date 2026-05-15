@@ -15,7 +15,7 @@ export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefau
     ...initConfig,
   });
 
-  instance.interceptors.request.use((config) => axiosRequestInterceptor(config, ISClientInstance));
+  instance.interceptors.request.use(async (config) => await axiosRequestInterceptor(config, ISClientInstance));
 
   instance.interceptors.response.use(
     (response) => response,
@@ -34,10 +34,15 @@ export const useIdentityServiceAuthentication = (): AuthenticationContentValues 
 const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => {
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   const initAndValidateISInstance = async () => {
     try {
+      console.log(1, 'INITIALIZE');
+      if (initialized) return;
       setIsLoading(true);
+      setInitialized(true);
+      console.log(2, 'PASS');
 
       const instance = new IdentityServiceClient(options);
       ISClientInstance = instance;
@@ -47,9 +52,9 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
 
       const authenticated = instance.isAuthenticated();
       setAuthenticated(authenticated);
-    } catch (error) {
-      console.log(error);
     } finally {
+      if (initialized) return;
+      setInitialized(false);
       setIsLoading(false);
     }
   };
@@ -67,14 +72,14 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
     return { show: expireDate >= now, format: `${d}/${m}/${y}` };
   }, [expireDate]);
 
-  const values: AuthenticationContentValues = useMemo(
-    () => ({
+  const values: AuthenticationContentValues = useMemo(() => {
+    console.log(ISClientInstance);
+    return {
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
       refresh: () => ISClientInstance!.refresh(),
-    }),
-    [ISClientInstance],
-  );
+    };
+  }, [ISClientInstance]);
 
   return (
     <AuthenticationContent.Provider value={values}>
