@@ -244,8 +244,8 @@ function N(e) {
 var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) => {
 	let [l, u] = a(!0), [d, f] = a(!1), [p, m] = a(!1), h = async () => {
 		try {
-			if (p) return;
-			u(!0), m(!0), M = new O(t), await M.handleCallback() || await M.restoreSession(), f(M.isAuthenticated());
+			if (u(!0), p) return;
+			m(!0), M = new O(t), await M.handleCallback() || await M.restoreSession(), f(M.isAuthenticated());
 		} finally {
 			if (p) return;
 			m(!1), u(!1);
@@ -265,7 +265,11 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 		logout: () => M.logout(),
 		refresh: () => M.refresh(),
 		tokenDecoded: M?.tokenDecoded
-	}), [M]);
+	}), [
+		M,
+		d,
+		l
+	]);
 	return /* @__PURE__ */ s(P.Provider, {
 		value: _,
 		children: d && !l ? o : /* @__PURE__ */ c("main", {

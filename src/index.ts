@@ -1,4 +1,4 @@
-import './assets/index.css';
+import './assets/main.css';
 
 export { default as IdentityServiceAuthenticationProvider } from './context/IdentityServiceAuthenticationProvider';
 export { createIdentityServiceAxiosInstance, useIdentityServiceAuthentication } from './context/IdentityServiceAuthenticationProvider';
