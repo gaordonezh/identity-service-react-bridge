@@ -1,7 +1,7 @@
-import { type AuthClientOptions } from '../types/global';
+import { type AuthClientOptions, type JwtDecodedPayload } from '../types/global';
 import { generatePKCE } from '../utils/pkce';
 import { savePKCE, getPKCE, clearPKCE, saveState, getState, clearState } from '../utils/storage';
-import { getTokenExpiration } from '../utils/jwt';
+import { getTokenDecoded } from '../utils/jwt';
 import { AuthBroadcast } from './auth-broadcast';
 
 class IdentityServiceClient {
@@ -9,6 +9,7 @@ class IdentityServiceClient {
   private refreshPromise: Promise<boolean> | null = null;
   private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
   private readonly broadcast = new AuthBroadcast();
+  tokenDecoded: JwtDecodedPayload | undefined;
 
   constructor(private readonly options: AuthClientOptions) {
     this.broadcast.subscribe((event) => {
@@ -26,13 +27,14 @@ class IdentityServiceClient {
       this.clearRefreshTimer();
       return;
     }
-    this.scheduleRefresh(token);
+
+    this.tokenDecoded = getTokenDecoded(token);
+    this.scheduleRefresh(this.tokenDecoded.exp * 1000);
   }
 
-  private scheduleRefresh(token: string) {
+  private scheduleRefresh(expiresAt: number) {
     this.clearRefreshTimer();
 
-    const expiresAt = getTokenExpiration(token);
     const now = Date.now();
     const refreshIn = expiresAt - now - 1000;
 

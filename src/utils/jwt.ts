@@ -1,21 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
+import type { JwtDecodedPayload } from '../types/global';
 
-interface JwtPayload {
-  /**
-   * Expiración
-   */
-  exp: number;
-  /**
-   * userId
-   */
-  sub: string;
-  /**
-   * sessionId
-   */
-  sid: string;
-}
-
-export function getTokenExpiration(token: string) {
-  const decoded = jwtDecode<JwtPayload>(token);
-  return decoded.exp * 1000;
+export function getTokenDecoded(token: string) {
+  return jwtDecode<JwtDecodedPayload>(token);
 }

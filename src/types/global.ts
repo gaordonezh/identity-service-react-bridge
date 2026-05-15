@@ -11,6 +11,7 @@ export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
   refresh(): Promise<boolean>;
+  tokenDecoded?: JwtDecodedPayload;
 }
 
 export interface IdentityServiceAuthenticationProviderProps {
@@ -23,3 +24,20 @@ export interface RetryableAxiosConfig extends AxiosRequestConfig {
 }
 
 export type AuthBroadcastEvent = 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
+
+export interface JwtDecodedPayload {
+  /**
+   * Expiración
+   */
+  exp: number;
+  /**
+   * userId
+   */
+  sub: string;
+  /**
+   * sessionId
+   */
+  sid: string;
+
+  [x: string]: any;
+}
