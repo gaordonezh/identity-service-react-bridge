@@ -3,4 +3,4 @@ import './assets/index.css';
 export { default as IdentityServiceAuthenticationProvider } from './context/IdentityServiceAuthenticationProvider';
 export { createIdentityServiceAxiosInstance, useIdentityServiceAuthentication } from './context/IdentityServiceAuthenticationProvider';
 
-export type { AuthClientOptions } from './types/global';
+export type { AuthClientOptions, JwtDecodedPayload, IdentityServiceAuthenticationProviderProps } from './types/global';

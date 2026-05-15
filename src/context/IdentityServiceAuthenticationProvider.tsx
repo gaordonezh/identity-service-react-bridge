@@ -42,7 +42,6 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
       if (initialized) return;
       setIsLoading(true);
       setInitialized(true);
-      console.log(0, 'INITIALIZATION');
 
       ISClientInstance = new IdentityServiceClient(options);
 
@@ -71,15 +70,15 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
     return { show: expireDate >= now, format: `${d}/${m}/${y}` };
   }, [expireDate]);
 
-  const values: AuthenticationContentValues = useMemo(() => {
-    console.log(1, 'INSTANCE', ISClientInstance);
-    return {
+  const values: AuthenticationContentValues = useMemo(
+    () => ({
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
       refresh: () => ISClientInstance!.refresh(),
       tokenDecoded: ISClientInstance?.tokenDecoded,
-    };
-  }, [ISClientInstance]);
+    }),
+    [ISClientInstance],
+  );
 
   return (
     <AuthenticationContent.Provider value={values}>
