@@ -14,15 +14,32 @@ declare interface AuthenticationContentValues {
     login(): Promise<void>;
     logout(): Promise<void>;
     refresh(): Promise<boolean>;
+    tokenDecoded?: JwtDecodedPayload;
 }
 
 export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
 
 export declare const IdentityServiceAuthenticationProvider: ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
 
-declare interface IdentityServiceAuthenticationProviderProps {
+export declare interface IdentityServiceAuthenticationProviderProps {
     expireDate: Date;
     options: AuthClientOptions;
+}
+
+export declare interface JwtDecodedPayload {
+    /**
+     * Expiración
+     */
+    exp: number;
+    /**
+     * userId
+     */
+    sub: string;
+    /**
+     * sessionId
+     */
+    sid: string;
+    [x: string]: any;
 }
 
 export declare const useIdentityServiceAuthentication: () => AuthenticationContentValues;
