@@ -3,24 +3,18 @@ import o from "axios";
 import { jsx as s, jsxs as c } from "react/jsx-runtime";
 //#region src/core/identity-service-axios-interceptors.ts
 var l = async (e, t) => {
-	if (t) {
-		let n = t.getAccessToken();
-		if (!n) {
-			if (!await t.refresh()) throw Error("Unauthenticated");
-			n = t.getAccessToken();
-		}
-		e.headers = e.headers || {}, e.headers.Authorization = `Bearer ${n}`;
+	let n = t?.getAccessToken();
+	if (!n) {
+		if (!await t?.refresh()) throw Error("Unauthenticated");
+		n = t?.getAccessToken();
 	}
-	return e;
+	return e.headers = e.headers || {}, e.headers.Authorization = `Bearer ${n}`, e;
 }, u = async (e, t) => {
 	let n = e.config;
-	if (t) {
-		if (!n || e.response?.status !== 401 || n._retry) return Promise.reject(e);
-		if (n._retry = !0, !await t.refresh()) return await t.logout(), Promise.reject(e);
-		let r = t.getAccessToken();
-		n.headers = n.headers || {}, n.headers.Authorization = `Bearer ${r}`;
-	}
-	return n;
+	if (!n || e.response?.status !== 401 || n._retry) return Promise.reject(e);
+	if (n._retry = !0, !await t?.refresh()) return await t?.logout(), Promise.reject(e);
+	let r = t?.getAccessToken();
+	return n.headers = n.headers || {}, n.headers.Authorization = `Bearer ${r}`, n;
 };
 //#endregion
 //#region src/utils/pkce.ts
@@ -140,7 +134,7 @@ var E = "netapp_identity_channel", D = class {
 	}
 	scheduleRefresh(e) {
 		this.clearRefreshTimer();
-		let t = T(e) - Date.now() - 3e4;
+		let t = T(e) - Date.now() - 1e3;
 		if (t <= 0) {
 			this.refresh();
 			return;
@@ -333,39 +327,39 @@ function M(e) {
 		timeout: 3e3,
 		...e
 	});
-	return t.interceptors.request.use((e) => l(e, j)), t.interceptors.response.use((e) => e, async (e) => t(await u(e, j))), t;
+	return t.interceptors.request.use(async (e) => await l(e, j)), t.interceptors.response.use((e) => e, async (e) => t(await u(e, j))), t;
 }
 var N = t({}), P = () => n(N), F = ({ options: t, expireDate: n, children: o }) => {
-	let [l, u] = a(!0), [d, f] = a(!1), p = async () => {
+	let [l, u] = a(!0), [d, f] = a(!1), [p, m] = a(!1), h = async () => {
 		try {
-			u(!0);
+			if (console.log(1, "INITIALIZE"), p) return;
+			u(!0), m(!0), console.log(2, "PASS");
 			let e = new O(t);
 			j = e, await e.handleCallback() || await e.restoreSession(), f(e.isAuthenticated());
-		} catch (e) {
-			console.log(e);
 		} finally {
-			u(!1);
+			if (p) return;
+			m(!1), u(!1);
 		}
 	};
 	r(() => {
-		p();
+		h();
 	}, [j]);
-	let m = i(() => {
+	let g = i(() => {
 		let e = n.getFullYear(), t = String(n.getMonth() + 1).padStart(2, "0"), r = String(n.getDate()).padStart(2, "0");
 		return {
 			show: n >= /* @__PURE__ */ new Date(),
 			format: `${r}/${t}/${e}`
 		};
-	}, [n]), h = i(() => ({
+	}, [n]), _ = i(() => (console.log(j), {
 		login: () => j.login(),
 		logout: () => j.logout(),
 		refresh: () => j.refresh()
 	}), [j]);
 	return /* @__PURE__ */ s(N.Provider, {
-		value: h,
+		value: _,
 		children: d && !l ? o : /* @__PURE__ */ c("main", {
 			className: "sso__main",
-			children: [m.show && !l ? /* @__PURE__ */ c("div", {
+			children: [g.show && !l ? /* @__PURE__ */ c("div", {
 				className: "sso__alert",
 				children: [/* @__PURE__ */ s("p", {
 					className: "sso__alert--icon sso__m-0",
@@ -383,7 +377,7 @@ var N = t({}), P = () => n(N), F = ({ options: t, expireDate: n, children: o }) 
 					children: [
 						/* @__PURE__ */ s("b", { children: "¡IMPORTANTE!" }),
 						" La contraseña es la misma que el usuario solo para la primera vez que ingrese con el SSO, posteriormente este le pedirá cambiarlo. Recuerda hacerlo antes del ",
-						m.format
+						g.format
 					]
 				})]
 			}) : null, /* @__PURE__ */ c("div", {
@@ -407,7 +401,7 @@ var N = t({}), P = () => n(N), F = ({ options: t, expireDate: n, children: o }) 
 						]
 					}), /* @__PURE__ */ s("button", {
 						className: "sso__button sso__button--full",
-						onClick: () => h.login(),
+						onClick: () => _.login(),
 						children: "INGRESAR SSO NAPCONTABLE"
 					})] })
 				]
