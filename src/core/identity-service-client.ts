@@ -9,7 +9,7 @@ class IdentityServiceClient {
   private refreshPromise: Promise<boolean> | null = null;
   private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
   private readonly broadcast = new AuthBroadcast();
-  tokenDecoded: JwtDecodedPayload | undefined;
+  public tokenDecoded: JwtDecodedPayload | undefined;
 
   constructor(private readonly options: AuthClientOptions) {
     this.broadcast.subscribe((event) => {

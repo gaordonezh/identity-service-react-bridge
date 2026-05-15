@@ -39,8 +39,8 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
 
   const initAndValidateISInstance = async () => {
     try {
-      if (initialized) return;
       setIsLoading(true);
+      if (initialized) return;
       setInitialized(true);
 
       ISClientInstance = new IdentityServiceClient(options);
@@ -77,7 +77,7 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
       refresh: () => ISClientInstance!.refresh(),
       tokenDecoded: ISClientInstance?.tokenDecoded,
     }),
-    [ISClientInstance],
+    [ISClientInstance, authenticated, isLoading],
   );
 
   return (
