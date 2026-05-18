@@ -150,7 +150,13 @@ var E = "netapp_identity_channel", D = class {
 	async executeRefresh() {
 		let e = await fetch(`${this.options.identityUrl}/auth/refresh`, {
 			method: "POST",
-			credentials: "include"
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				client_id: this.options.clientId,
+				redirect_uri: this.options.redirectUri,
+				logout_uri: this.options.logoutRedirectUri
+			})
 		});
 		if (!e.ok) return this.setAccessToken(null), this.broadcast.publish("SESSION_EXPIRED"), !1;
 		let t = await e.json();
@@ -169,28 +175,32 @@ var E = "netapp_identity_channel", D = class {
 		let { verifier: e, challenge: t } = await f(), n = crypto.randomUUID();
 		h(e), v(n);
 		let r = new URL(`${this.options.identityUrl}/auth/authorize`);
-		r.searchParams.set("client_id", this.options.clientId), r.searchParams.set("redirect_uri", this.options.redirectUri), r.searchParams.set("code_challenge", t), r.searchParams.set("state", n), this.broadcast.publish("LOGIN"), globalThis.location.href = r.toString();
+		r.searchParams.set("client_id", this.options.clientId), r.searchParams.set("redirect_uri", this.options.redirectUri), r.searchParams.set("logout_uri", this.options.logoutRedirectUri), r.searchParams.set("code_challenge", t), r.searchParams.set("state", n), this.broadcast.publish("LOGIN"), globalThis.location.href = r.toString();
 	}
 	async handleCallback() {
-		let e = new URLSearchParams(globalThis.location.search), t = e.get("code"), n = e.get("state");
-		if (!t || !n) return !1;
-		if (n !== y()) throw Error("Invalid state");
-		let r = g();
-		if (!r) throw Error("Missing PKCE verifier");
-		let i = await fetch(`${this.options.identityUrl}/auth/token`, {
+		let e = new URLSearchParams(globalThis.location.search), t = e.get("error"), n = e.get("code"), r = e.get("state");
+		if (t) {
+			let e = new URL(globalThis.location.href);
+			return e.search = "", globalThis.history.replaceState({}, document.title, e.toString()), "error";
+		}
+		if (!n || !r) return "check";
+		if (r !== y()) throw Error("Invalid state");
+		let i = g();
+		if (!i) throw Error("Missing PKCE verifier");
+		let a = await fetch(`${this.options.identityUrl}/auth/token`, {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
 			credentials: "include",
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				code: t,
+				code: n,
 				client_id: this.options.clientId,
 				redirect_uri: this.options.redirectUri,
-				code_verifier: r
+				code_verifier: i
 			})
 		});
-		if (!i.ok) throw Error("Token exchange failed");
-		let a = await i.json();
-		return this.setAccessToken(a.accessToken), _(), b(), globalThis.history.replaceState({}, document.title, globalThis.location.pathname), !!a.accessToken;
+		if (!a.ok) throw Error("Token exchange failed");
+		let o = await a.json();
+		return this.setAccessToken(o.accessToken), _(), b(), globalThis.history.replaceState({}, document.title, globalThis.location.pathname), o.accessToken ? "success" : "error";
 	}
 	async refresh() {
 		if (this.refreshPromise !== null) return this.refreshPromise;
@@ -242,25 +252,31 @@ function N(e) {
 	return t.interceptors.request.use(async (e) => await l(e, M)), t.interceptors.response.use((e) => e, async (e) => t(await u(e, M))), t;
 }
 var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) => {
-	let [l, u] = a(!0), [d, f] = a(!1), [p, m] = a(!1), h = async () => {
+	let [l, u] = a(!0), [d, f] = a(!1), [p, m] = a(!1), [h, g] = a(!1), _ = async () => {
 		try {
 			if (u(!0), p) return;
-			m(!0), M = new O(t), await M.handleCallback() || await M.restoreSession(), f(M.isAuthenticated());
+			m(!0), M = new O(t);
+			let e = await M.handleCallback();
+			if (e === "error") {
+				g(!0);
+				return;
+			}
+			e === "check" && await M.restoreSession(), f(M.isAuthenticated());
 		} finally {
 			if (p) return;
 			m(!1), u(!1);
 		}
 	};
 	r(() => {
-		h();
-	}, [M]);
-	let g = i(() => {
+		_();
+	}, []);
+	let v = i(() => {
 		let e = n.getFullYear(), t = String(n.getMonth() + 1).padStart(2, "0"), r = String(n.getDate()).padStart(2, "0");
 		return {
 			show: n >= /* @__PURE__ */ new Date(),
 			format: `${r}/${t}/${e}`
 		};
-	}, [n]), _ = i(() => ({
+	}, [n]), y = i(() => ({
 		login: () => M.login(),
 		logout: () => M.logout(),
 		refresh: () => M.refresh(),
@@ -271,10 +287,10 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 		l
 	]);
 	return /* @__PURE__ */ s(P.Provider, {
-		value: _,
+		value: y,
 		children: d && !l ? o : /* @__PURE__ */ c("main", {
 			className: "sso__main",
-			children: [g.show && !l ? /* @__PURE__ */ s(j, { dateFormat: g.format }) : null, /* @__PURE__ */ c("div", {
+			children: [v.show && !l ? /* @__PURE__ */ s(j, { dateFormat: v.format }) : null, /* @__PURE__ */ c("div", {
 				className: "sso__card",
 				children: [
 					/* @__PURE__ */ s("img", {
@@ -289,7 +305,10 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 					l ? /* @__PURE__ */ s("img", {
 						src: A,
 						alt: "loader"
-					}) : /* @__PURE__ */ c(e, { children: [/* @__PURE__ */ c("p", {
+					}) : /* @__PURE__ */ c(e, { children: [h ? /* @__PURE__ */ s("p", {
+						className: "sso__paragraph sso__paragraph--error",
+						children: "Parámetros inválidos"
+					}) : /* @__PURE__ */ c("p", {
 						className: "sso__paragraph",
 						children: [
 							"Continue con el ",
@@ -298,7 +317,7 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 						]
 					}), /* @__PURE__ */ s("button", {
 						className: "sso__button sso__button--full",
-						onClick: () => _.login(),
+						onClick: () => y.login(),
 						children: "INGRESAR SSO NAPCONTABLE"
 					})] })
 				]
