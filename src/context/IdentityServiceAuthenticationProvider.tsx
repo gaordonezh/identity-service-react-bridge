@@ -36,6 +36,7 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [isInvalid, setIsInvalid] = useState(false);
 
   const initAndValidateISInstance = async () => {
     try {
@@ -46,7 +47,14 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
       ISClientInstance = new IdentityServiceClient(options);
 
       const handled = await ISClientInstance.handleCallback();
-      if (!handled) await ISClientInstance.restoreSession();
+
+      if (handled === 'error') {
+        setIsInvalid(true);
+        return;
+      }
+      if (handled === 'check') {
+        await ISClientInstance.restoreSession();
+      }
 
       const authenticated = ISClientInstance.isAuthenticated();
       setAuthenticated(authenticated);
@@ -59,7 +67,8 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
 
   useEffect(() => {
     initAndValidateISInstance();
-  }, [ISClientInstance]);
+  }, []);
+  // }, [ISClientInstance]);
 
   const showAlert = useMemo(() => {
     const y = expireDate.getFullYear();
@@ -97,9 +106,13 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
               <img src={loaderImg} alt="loader" />
             ) : (
               <Fragment>
-                <p className="sso__paragraph">
-                  Continue con el <code>SSO Netappperu SAC</code> siguiendo los pasos que se le indique...
-                </p>
+                {isInvalid ? (
+                  <p className="sso__paragraph sso__paragraph--error">Parámetros inválidos</p>
+                ) : (
+                  <p className="sso__paragraph">
+                    Continue con el <code>SSO Netappperu SAC</code> siguiendo los pasos que se le indique...
+                  </p>
+                )}
 
                 <button className="sso__button sso__button--full" onClick={() => values.login()}>
                   INGRESAR SSO NAPCONTABLE

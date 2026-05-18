@@ -58,6 +58,14 @@ class IdentityServiceClient {
     const response = await fetch(`${this.options.identityUrl}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: this.options.clientId,
+        redirect_uri: this.options.redirectUri,
+        logout_uri: this.options.logoutRedirectUri,
+      }),
     });
 
     if (!response.ok) {
@@ -96,6 +104,7 @@ class IdentityServiceClient {
 
     url.searchParams.set('client_id', this.options.clientId);
     url.searchParams.set('redirect_uri', this.options.redirectUri);
+    url.searchParams.set('logout_uri', this.options.logoutRedirectUri);
     url.searchParams.set('code_challenge', challenge);
     url.searchParams.set('state', state);
 
@@ -104,14 +113,22 @@ class IdentityServiceClient {
     globalThis.location.href = url.toString();
   }
 
-  async handleCallback(): Promise<boolean> {
+  async handleCallback(): Promise<'error' | 'success' | 'check'> {
     const params = new URLSearchParams(globalThis.location.search);
 
+    const error = params.get('error');
     const code = params.get('code');
     const state = params.get('state');
 
+    if (error) {
+      const url = new URL(globalThis.location.href);
+      url.search = '';
+      globalThis.history.replaceState({}, document.title, url.toString());
+      return 'error';
+    }
+
     if (!code || !state) {
-      return false;
+      return 'check';
     }
 
     const storedState = getState();
@@ -127,10 +144,10 @@ class IdentityServiceClient {
 
     const response = await fetch(`${this.options.identityUrl}/auth/token`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
       body: JSON.stringify({
         code,
         client_id: this.options.clientId,
@@ -152,7 +169,7 @@ class IdentityServiceClient {
 
     globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
 
-    return !!data.accessToken;
+    return data.accessToken ? 'success' : 'error';
   }
 
   async refresh() {
