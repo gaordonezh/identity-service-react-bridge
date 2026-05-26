@@ -68,7 +68,6 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
   useEffect(() => {
     initAndValidateISInstance();
   }, []);
-  // }, [ISClientInstance]);
 
   const showAlert = useMemo(() => {
     const y = expireDate.getFullYear();
@@ -83,7 +82,6 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
     () => ({
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
-      refresh: () => ISClientInstance!.refresh(),
       tokenDecoded: ISClientInstance?.tokenDecoded,
     }),
     [ISClientInstance, authenticated, isLoading],
@@ -107,7 +105,7 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
             ) : (
               <Fragment>
                 {isInvalid ? (
-                  <p className="sso__paragraph sso__paragraph--error">Parámetros inválidos</p>
+                  <p className="sso__paragraph sso__paragraph--error">Cliente inválido</p>
                 ) : (
                   <p className="sso__paragraph">
                     Continue con el <code>SSO Netappperu SAC</code> siguiendo los pasos que se le indique...

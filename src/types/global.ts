@@ -10,7 +10,6 @@ export interface AuthClientOptions {
 export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
-  refresh(): Promise<boolean>;
   tokenDecoded?: JwtDecodedPayload;
 }
 
@@ -27,17 +26,21 @@ export type AuthBroadcastEvent = 'LOGIN' | 'LOGOUT' | 'SESSION_EXPIRED';
 
 export interface JwtDecodedPayload {
   /**
-   * Expiración
-   */
-  exp: number;
-  /**
-   * userId
+   * User ID
    */
   sub: string;
   /**
-   * sessionId
+   * Session ID
    */
   sid: string;
-
+  jti: string;
+  fullname: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  iat: number;
+  exp: number;
+  aud: Array<string>;
+  iss: string;
   [x: string]: any;
 }
