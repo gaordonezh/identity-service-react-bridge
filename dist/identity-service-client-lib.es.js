@@ -279,7 +279,6 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 	}, [n]), y = i(() => ({
 		login: () => M.login(),
 		logout: () => M.logout(),
-		refresh: () => M.refresh(),
 		tokenDecoded: M?.tokenDecoded
 	}), [
 		M,
@@ -307,7 +306,7 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 						alt: "loader"
 					}) : /* @__PURE__ */ c(e, { children: [h ? /* @__PURE__ */ s("p", {
 						className: "sso__paragraph sso__paragraph--error",
-						children: "Parámetros inválidos"
+						children: "Cliente inválido"
 					}) : /* @__PURE__ */ c("p", {
 						className: "sso__paragraph",
 						children: [

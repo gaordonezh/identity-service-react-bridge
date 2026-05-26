@@ -13,7 +13,6 @@ export declare interface AuthClientOptions {
 declare interface AuthenticationContentValues {
     login(): Promise<void>;
     logout(): Promise<void>;
-    refresh(): Promise<boolean>;
     tokenDecoded?: JwtDecodedPayload;
 }
 
@@ -28,17 +27,22 @@ export declare interface IdentityServiceAuthenticationProviderProps {
 
 export declare interface JwtDecodedPayload {
     /**
-     * Expiración
-     */
-    exp: number;
-    /**
-     * userId
+     * User ID
      */
     sub: string;
     /**
-     * sessionId
+     * Session ID
      */
     sid: string;
+    jti: string;
+    fullname: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    iat: number;
+    exp: number;
+    aud: Array<string>;
+    iss: string;
     [x: string]: any;
 }
 
