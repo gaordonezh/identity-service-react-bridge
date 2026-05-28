@@ -32,7 +32,9 @@ export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefau
 const AuthenticationContent = createContext({} as AuthenticationContentValues);
 export const useIdentityServiceAuthentication = (): AuthenticationContentValues => useContext(AuthenticationContent);
 
-const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => {
+const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => {
+  const { appName, options, expireDate, children } = props;
+
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -98,7 +100,7 @@ const IdentityServiceAuthenticationProvider = ({ options, expireDate, children }
           <div className="sso__card">
             <img src={ssoImg} className="sso__image" alt="sso" />
 
-            <h1 className="sso__title">Módulo de Usuarios</h1>
+            <h1 className="sso__title">{appName}</h1>
 
             {isLoading ? (
               <img src={loaderImg} alt="loader" />

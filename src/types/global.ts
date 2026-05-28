@@ -14,6 +14,7 @@ export interface AuthenticationContentValues {
 }
 
 export interface IdentityServiceAuthenticationProviderProps {
+  appName: string;
   expireDate: Date;
   options: AuthClientOptions;
 }
