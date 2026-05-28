@@ -251,45 +251,45 @@ function N(e) {
 	});
 	return t.interceptors.request.use(async (e) => await l(e, M)), t.interceptors.response.use((e) => e, async (e) => t(await u(e, M))), t;
 }
-var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) => {
-	let [l, u] = a(!0), [d, f] = a(!1), [p, m] = a(!1), [h, g] = a(!1), _ = async () => {
+var P = t({}), F = () => n(P), I = (t) => {
+	let { appName: n, options: o, expireDate: l, children: u } = t, [d, f] = a(!0), [p, m] = a(!1), [h, g] = a(!1), [_, v] = a(!1), y = async () => {
 		try {
-			if (u(!0), p) return;
-			m(!0), M = new O(t);
+			if (f(!0), h) return;
+			g(!0), M = new O(o);
 			let e = await M.handleCallback();
 			if (e === "error") {
-				g(!0);
+				v(!0);
 				return;
 			}
-			e === "check" && await M.restoreSession(), f(M.isAuthenticated());
+			e === "check" && await M.restoreSession(), m(M.isAuthenticated());
 		} finally {
-			if (p) return;
-			m(!1), u(!1);
+			if (h) return;
+			g(!1), f(!1);
 		}
 	};
 	r(() => {
-		_();
+		y();
 	}, []);
-	let v = i(() => {
-		let e = n.getFullYear(), t = String(n.getMonth() + 1).padStart(2, "0"), r = String(n.getDate()).padStart(2, "0");
+	let b = i(() => {
+		let e = l.getFullYear(), t = String(l.getMonth() + 1).padStart(2, "0"), n = String(l.getDate()).padStart(2, "0");
 		return {
-			show: n >= /* @__PURE__ */ new Date(),
-			format: `${r}/${t}/${e}`
+			show: l >= /* @__PURE__ */ new Date(),
+			format: `${n}/${t}/${e}`
 		};
-	}, [n]), y = i(() => ({
+	}, [l]), x = i(() => ({
 		login: () => M.login(),
 		logout: () => M.logout(),
 		tokenDecoded: M?.tokenDecoded
 	}), [
 		M,
-		d,
-		l
+		p,
+		d
 	]);
 	return /* @__PURE__ */ s(P.Provider, {
-		value: y,
-		children: d && !l ? o : /* @__PURE__ */ c("main", {
+		value: x,
+		children: p && !d ? u : /* @__PURE__ */ c("main", {
 			className: "sso__main",
-			children: [v.show && !l ? /* @__PURE__ */ s(j, { dateFormat: v.format }) : null, /* @__PURE__ */ c("div", {
+			children: [b.show && !d ? /* @__PURE__ */ s(j, { dateFormat: b.format }) : null, /* @__PURE__ */ c("div", {
 				className: "sso__card",
 				children: [
 					/* @__PURE__ */ s("img", {
@@ -299,12 +299,12 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 					}),
 					/* @__PURE__ */ s("h1", {
 						className: "sso__title",
-						children: "Módulo de Usuarios"
+						children: n
 					}),
-					l ? /* @__PURE__ */ s("img", {
+					d ? /* @__PURE__ */ s("img", {
 						src: A,
 						alt: "loader"
-					}) : /* @__PURE__ */ c(e, { children: [h ? /* @__PURE__ */ s("p", {
+					}) : /* @__PURE__ */ c(e, { children: [_ ? /* @__PURE__ */ s("p", {
 						className: "sso__paragraph sso__paragraph--error",
 						children: "Cliente inválido"
 					}) : /* @__PURE__ */ c("p", {
@@ -316,15 +316,27 @@ var P = t({}), F = () => n(P), I = ({ options: t, expireDate: n, children: o }) 
 						]
 					}), /* @__PURE__ */ s("button", {
 						className: "sso__button sso__button--full",
-						onClick: () => y.login(),
+						onClick: () => x.login(),
 						children: "INGRESAR SSO NAPCONTABLE"
 					})] })
 				]
 			})]
 		})
 	});
-};
+}, L = () => /* @__PURE__ */ s("main", {
+	className: "sso__main",
+	children: /* @__PURE__ */ c("div", {
+		className: "sso__card",
+		children: [/* @__PURE__ */ s("h1", {
+			className: "sso__title",
+			children: "Ocurrió un error"
+		}), /* @__PURE__ */ c("p", {
+			className: "sso__paragraph",
+			children: ["No se obtuvo la información del usuario desde el ", /* @__PURE__ */ s("code", { children: "servidor interno" })]
+		})]
+	})
+});
 //#endregion
-export { I as IdentityServiceAuthenticationProvider, N as createIdentityServiceAxiosInstance, F as useIdentityServiceAuthentication };
+export { I as IdentityServiceAuthenticationProvider, L as InternalSystemAccessError, N as createIdentityServiceAxiosInstance, F as useIdentityServiceAuthentication };
 
 //# sourceMappingURL=identity-service-client-lib.es.js.map

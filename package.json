@@ -1,7 +1,7 @@
 {
   "name": "identity-service-react-bridge",
   "private": true,
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "Librería de autenticación y autorización con identity service para React",
   "type": "module",
   "main": "./dist/identity-service-client-lib.cjs.js",

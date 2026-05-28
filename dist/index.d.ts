@@ -18,12 +18,15 @@ declare interface AuthenticationContentValues {
 
 export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
 
-export declare const IdentityServiceAuthenticationProvider: ({ options, expireDate, children }: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
+export declare const IdentityServiceAuthenticationProvider: (props: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
 
 export declare interface IdentityServiceAuthenticationProviderProps {
+    appName: string;
     expireDate: Date;
     options: AuthClientOptions;
 }
+
+export declare const InternalSystemAccessError: () => JSX.Element;
 
 export declare interface JwtDecodedPayload {
     /**
