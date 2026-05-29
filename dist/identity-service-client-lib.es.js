@@ -246,7 +246,6 @@ var E = "netapp_identity_channel", D = class {
 function N(e) {
 	let t = o.create({
 		withCredentials: !0,
-		timeout: 3e3,
 		...e
 	});
 	return t.interceptors.request.use(async (e) => await l(e, M)), t.interceptors.response.use((e) => e, async (e) => t(await u(e, M))), t;
@@ -317,7 +316,7 @@ var P = t({}), F = () => n(P), I = (t) => {
 					}), /* @__PURE__ */ s("button", {
 						className: "sso__button sso__button--full",
 						onClick: () => x.login(),
-						children: "INGRESAR SSO NAPCONTABLE"
+						children: "INGRESAR CON SSO NETAPPPERU"
 					})] })
 				]
 			})]
