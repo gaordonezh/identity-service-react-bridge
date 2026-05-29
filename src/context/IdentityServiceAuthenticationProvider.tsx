@@ -12,7 +12,6 @@ let ISClientInstance: IdentityServiceClient | undefined;
 export function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance {
   const instance = axios.create({
     withCredentials: true,
-    timeout: 3000,
     ...initConfig,
   });
 
@@ -115,7 +114,7 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
                 )}
 
                 <button className="sso__button sso__button--full" onClick={() => values.login()}>
-                  INGRESAR SSO NAPCONTABLE
+                  INGRESAR CON SSO NETAPPPERU
                 </button>
               </Fragment>
             )}
