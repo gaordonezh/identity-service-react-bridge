@@ -21,7 +21,6 @@ export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
   tokenDecoded?: JwtDecodedPayload;
-  actions?: RequiredActionsProps;
 }
 
 export interface IdentityServiceAuthenticationProviderProps {

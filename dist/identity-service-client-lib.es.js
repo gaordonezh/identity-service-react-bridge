@@ -487,16 +487,15 @@ var H = t({}), U = () => n(H), W = (t) => {
 	}, [l]), S = i(() => ({
 		login: () => B.login(),
 		logout: () => B.logout(),
-		tokenDecoded: B?.tokenDecoded,
-		actions: B?.requiredActions
+		tokenDecoded: B?.tokenDecoded
 	}), [
 		B,
 		p,
 		d
-	]), C = p && !d && !S.actions?.email && !S.actions?.password && !!B;
+	]), C = B?.requiredActions, w = p && !d && !C?.email && !C?.password && !!B;
 	return /* @__PURE__ */ s(H.Provider, {
 		value: S,
-		children: C ? u : /* @__PURE__ */ s("main", {
+		children: w ? u : /* @__PURE__ */ s("main", {
 			className: "sso__main",
 			children: /* @__PURE__ */ c("div", {
 				className: "sso__card",
@@ -510,8 +509,8 @@ var H = t({}), U = () => n(H), W = (t) => {
 						className: "sso__title",
 						children: n
 					}),
-					S.actions?.email || S.actions?.password ? /* @__PURE__ */ s(L, {
-						...S.actions,
+					C?.email || C?.password ? /* @__PURE__ */ s(L, {
+						...C,
 						onSubmit: b
 					}) : /* @__PURE__ */ c(e, { children: [x.show && !d ? /* @__PURE__ */ s(F, { dateFormat: x.format }) : null, /* @__PURE__ */ s(z, {
 						invalid: _,

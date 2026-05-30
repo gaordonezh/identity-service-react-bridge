@@ -14,7 +14,6 @@ declare interface AuthenticationContentValues {
     login(): Promise<void>;
     logout(): Promise<void>;
     tokenDecoded?: JwtDecodedPayload;
-    actions?: RequiredActionsProps;
 }
 
 export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
@@ -48,11 +47,6 @@ export declare interface JwtDecodedPayload {
     aud: Array<string>;
     iss: string;
     [x: string]: any;
-}
-
-declare interface RequiredActionsProps {
-    email: boolean;
-    password: boolean;
 }
 
 export declare const useIdentityServiceAuthentication: () => AuthenticationContentValues;

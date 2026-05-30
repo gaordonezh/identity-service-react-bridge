@@ -96,12 +96,13 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
       tokenDecoded: ISClientInstance?.tokenDecoded,
-      actions: ISClientInstance?.requiredActions,
     }),
     [ISClientInstance, authenticated, isLoading],
   );
 
-  const canNext = authenticated && !isLoading && !values.actions?.email && !values.actions?.password && !!ISClientInstance;
+  const actions = ISClientInstance?.requiredActions;
+
+  const canNext = authenticated && !isLoading && !actions?.email && !actions?.password && !!ISClientInstance;
 
   return (
     <AuthenticationContent.Provider value={values}>
@@ -114,8 +115,8 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
 
             <h1 className="sso__title">{appName}</h1>
 
-            {values.actions?.email || values.actions?.password ? (
-              <RequiredActions {...values.actions} onSubmit={handleUpdate} />
+            {actions?.email || actions?.password ? (
+              <RequiredActions {...actions} onSubmit={handleUpdate} />
             ) : (
               <Fragment>
                 {showAlert.show && !isLoading ? <ExpireAlert dateFormat={showAlert.format} /> : null}
