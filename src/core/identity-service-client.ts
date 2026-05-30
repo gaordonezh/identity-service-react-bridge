@@ -1,8 +1,20 @@
-import { type AuthClientOptions, type JwtDecodedPayload } from '../types/global';
+import { type AuthClientOptions, type JwtDecodedPayload, type RequiredActionsProps } from '../types/global';
 import { generatePKCE } from '../utils/pkce';
-import { savePKCE, getPKCE, clearPKCE, saveState, getState, clearState } from '../utils/storage';
+import {
+  savePKCE,
+  getPKCE,
+  clearPKCE,
+  saveState,
+  getState,
+  clearState,
+  saveRequiredAction,
+  getRequiredAction,
+  clearRequiredAction,
+} from '../utils/storage';
 import { getTokenDecoded } from '../utils/jwt';
 import { AuthBroadcast } from './auth-broadcast';
+
+const defaultRequiredOptions: RequiredActionsProps = { email: false, password: false };
 
 class IdentityServiceClient {
   private accessToken: string | null = null;
@@ -10,6 +22,7 @@ class IdentityServiceClient {
   private refreshTimeout: ReturnType<typeof setTimeout> | null = null;
   private readonly broadcast = new AuthBroadcast();
   public tokenDecoded: JwtDecodedPayload | undefined;
+  public requiredActions: RequiredActionsProps = defaultRequiredOptions;
 
   constructor(private readonly options: AuthClientOptions) {
     this.broadcast.subscribe((event) => {
@@ -58,9 +71,7 @@ class IdentityServiceClient {
     const response = await fetch(`${this.options.identityUrl}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         client_id: this.options.clientId,
         redirect_uri: this.options.redirectUri,
@@ -76,6 +87,7 @@ class IdentityServiceClient {
 
     const data = await response.json();
     this.setAccessToken(data.accessToken);
+    this.requiredActions = getRequiredAction() ?? defaultRequiredOptions;
 
     return true;
   }
@@ -89,7 +101,7 @@ class IdentityServiceClient {
   }
 
   isAuthenticated() {
-    return !!this.accessToken;
+    return !!this.accessToken && !!this.tokenDecoded;
   }
 
   async login() {
@@ -145,9 +157,7 @@ class IdentityServiceClient {
     const response = await fetch(`${this.options.identityUrl}/auth/token`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         code,
         client_id: this.options.clientId,
@@ -169,7 +179,18 @@ class IdentityServiceClient {
 
     globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
 
-    return data.accessToken ? 'success' : 'error';
+    const res = data.accessToken ? 'success' : 'error';
+    if (res === 'success') {
+      const pwd = params.get('updatepassword') === 'true';
+      const mail = params.get('updateemail') === 'true';
+      if (pwd || mail) {
+        const obj: RequiredActionsProps = { email: mail, password: pwd };
+        saveRequiredAction(obj);
+        this.requiredActions = obj;
+      }
+    }
+
+    return res;
   }
 
   async refresh() {
@@ -203,9 +224,7 @@ class IdentityServiceClient {
     await fetch(`${this.options.identityUrl}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
+      headers: { Authorization: `Bearer ${this.accessToken}` },
     });
 
     this.setAccessToken(null);
@@ -213,6 +232,50 @@ class IdentityServiceClient {
     this.broadcast.publish('LOGOUT');
 
     this.redirect();
+  }
+
+  async updateSpecificFields(email: string, password: string) {
+    const actions = [];
+
+    if (email) {
+      const response = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const obj = await response.json();
+      if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR EL CORREO');
+
+      actions.push('update_email');
+    }
+
+    if (password) {
+      const response = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}/password`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const obj = await response.json();
+      if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR LA CONTRASEÑA');
+
+      actions.push('update_password');
+    }
+
+    if (actions.length) {
+      const response = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}/remove-actions`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actions }),
+      });
+      const obj = await response.json();
+      if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR LAS ACCIONES');
+    }
+
+    clearRequiredAction();
+    this.requiredActions = defaultRequiredOptions;
   }
 }
 

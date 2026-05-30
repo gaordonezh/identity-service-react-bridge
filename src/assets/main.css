@@ -18,6 +18,7 @@
   font-weight: 500;
   color: var(--text-h);
   font-size: 40px;
+  line-height: 100%;
   @media (max-width: 1024px) {
     font-size: 24px;
   }
@@ -58,6 +59,7 @@ code {
   align-items: center;
   background-color: #16171d;
   text-align: center;
+  padding: 40px 20px;
 }
 
 /* LOGIN */
@@ -101,6 +103,12 @@ code {
     border-color: #3b82f617;
   }
 }
+.sso__button:disabled {
+  opacity: 0.25;
+  color: #ffffff;
+  background-color: #757575;
+  pointer-events: none;
+}
 .sso__button--full {
   width: 100%;
 }
@@ -140,4 +148,62 @@ code {
 .sso__alert--icon {
   width: 32px;
   height: 32px;
+}
+
+/* INPUT DESIGN */
+
+.sso__inputgroup {
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: left;
+  position: relative;
+}
+.sso__inputlabel {
+  display: block;
+  color: #b8c0d4;
+  font-size: 14px;
+  font-weight: 500;
+}
+.sso__input {
+  width: 100%;
+  padding: 16px 20px;
+  background: #111827;
+  border: 1px solid #23304d;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 16px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.sso__input:disabled {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.sso__input::placeholder {
+  color: #6b7280;
+}
+.sso__input:hover {
+  border-color: #31508d;
+}
+.sso__input:focus {
+  outline: none;
+  border-color: #1d4ed850;
+  box-shadow:
+    0 0 0 1px #1d4ed8,
+    0 0 12px rgba(29, 78, 216, 0.25);
+  background: #141d30;
+}
+.sso__inputmsg {
+  color: #6b7280;
+  font-size: 14px;
+  color: rgb(200, 0, 0);
+  position: absolute;
+  left: 0;
+  top: calc(100% - 4px);
+}
+.sso__input--error {
+  border-color: rgb(200, 0, 0, 0.75) !important;
+  background-color: rgb(200, 0, 0, 0.05) !important;
 }

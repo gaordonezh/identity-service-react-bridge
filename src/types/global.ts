@@ -7,10 +7,21 @@ export interface AuthClientOptions {
   logoutRedirectUri: string;
 }
 
+export interface RequiredActionsProps {
+  email: boolean;
+  password: boolean;
+}
+
+export interface FormUpdateFields {
+  emailStr: string;
+  passwordStr: string;
+}
+
 export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
   tokenDecoded?: JwtDecodedPayload;
+  actions?: RequiredActionsProps;
 }
 
 export interface IdentityServiceAuthenticationProviderProps {

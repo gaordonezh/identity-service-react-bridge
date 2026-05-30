@@ -1,11 +1,12 @@
 import { createContext, Fragment, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { type AuthenticationContentValues, type IdentityServiceAuthenticationProviderProps } from '../types/global';
+import { type AuthenticationContentValues, type FormUpdateFields, type IdentityServiceAuthenticationProviderProps } from '../types/global';
 import axios, { AxiosError, type AxiosInstance, type CreateAxiosDefaults } from 'axios';
 import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/identity-service-axios-interceptors';
 import IdentityServiceClient from '../core/identity-service-client';
 import ssoImg from '../assets/sso-logo.png';
-import loaderImg from '../assets/pulse-loader.svg';
 import ExpireAlert from '../components/ExpireAlert';
+import RequiredActions from '../components/RequiredActions';
+import MainActions from '../components/MainActions';
 
 let ISClientInstance: IdentityServiceClient | undefined;
 
@@ -66,6 +67,17 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
     }
   };
 
+  const handleUpdate = async (fields: FormUpdateFields) => {
+    try {
+      const userId = values.tokenDecoded?.sub;
+      if (!userId) throw new Error('NOT FOUND USER ID');
+      await ISClientInstance?.updateSpecificFields(fields.emailStr, fields.passwordStr);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   useEffect(() => {
     initAndValidateISInstance();
   }, []);
@@ -84,38 +96,31 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
       tokenDecoded: ISClientInstance?.tokenDecoded,
+      actions: ISClientInstance?.requiredActions,
     }),
     [ISClientInstance, authenticated, isLoading],
   );
 
+  const canNext = authenticated && !isLoading && !values.actions?.email && !values.actions?.password && !!ISClientInstance;
+
   return (
     <AuthenticationContent.Provider value={values}>
-      {authenticated && !isLoading ? (
+      {canNext ? (
         children
       ) : (
         <main className="sso__main">
-          {showAlert.show && !isLoading ? <ExpireAlert dateFormat={showAlert.format} /> : null}
-
           <div className="sso__card">
             <img src={ssoImg} className="sso__image" alt="sso" />
 
             <h1 className="sso__title">{appName}</h1>
 
-            {isLoading ? (
-              <img src={loaderImg} alt="loader" />
+            {values.actions?.email || values.actions?.password ? (
+              <RequiredActions {...values.actions} onSubmit={handleUpdate} />
             ) : (
               <Fragment>
-                {isInvalid ? (
-                  <p className="sso__paragraph sso__paragraph--error">Cliente inválido</p>
-                ) : (
-                  <p className="sso__paragraph">
-                    Continue con el <code>SSO Netappperu SAC</code> siguiendo los pasos que se le indique...
-                  </p>
-                )}
+                {showAlert.show && !isLoading ? <ExpireAlert dateFormat={showAlert.format} /> : null}
 
-                <button className="sso__button sso__button--full" onClick={() => values.login()}>
-                  INGRESAR CON SSO NETAPPPERU
-                </button>
+                <MainActions invalid={isInvalid} loading={isLoading} onLogin={() => values.login()} />
               </Fragment>
             )}
           </div>
