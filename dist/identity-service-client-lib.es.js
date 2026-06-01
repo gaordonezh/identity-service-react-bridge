@@ -247,9 +247,21 @@ var A = "netapp_identity_channel", j = class {
 			headers: { Authorization: `Bearer ${this.accessToken}` }
 		}), this.setAccessToken(null), this.broadcast.publish("LOGOUT"), this.redirect();
 	}
-	async updateSpecificFields(e, t) {
-		let n = [];
-		if (e) {
+	async updateSpecificFields(e, t, n) {
+		let r = [], i = "";
+		if (n) {
+			let e = new FormData();
+			e.append("file", n);
+			let t = await fetch(`${this.options.identityUrl}/utils/upload-file`, {
+				method: "POST",
+				credentials: "include",
+				headers: { Authorization: `Bearer ${this.accessToken}` },
+				body: e
+			}), r = await t.json();
+			if (!r.url || !t.ok) throw Error("UPLOAD FILED | NOT FOUND URL");
+			i = r.url;
+		}
+		if (e || i) {
 			let t = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}`, {
 				method: "PUT",
 				credentials: "include",
@@ -257,10 +269,13 @@ var A = "netapp_identity_channel", j = class {
 					Authorization: `Bearer ${this.accessToken}`,
 					"Content-Type": "application/json"
 				},
-				body: JSON.stringify({ email: e })
-			}), r = await t.json();
-			if (!t.ok || !r.success) throw Error("NO SE PUDO ACTUALIZAR EL CORREO");
-			n.push("update_email");
+				body: JSON.stringify({
+					email: e || void 0,
+					photo: i || void 0
+				})
+			}), n = await t.json();
+			if (!t.ok || !n.success) throw Error("NO SE PUDO ACTUALIZAR EL CORREO");
+			e && r.push("update_email");
 		}
 		if (t) {
 			let e = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}/password`, {
@@ -271,11 +286,11 @@ var A = "netapp_identity_channel", j = class {
 					"Content-Type": "application/json"
 				},
 				body: JSON.stringify({ password: t })
-			}), r = await e.json();
-			if (!e.ok || !r.success) throw Error("NO SE PUDO ACTUALIZAR LA CONTRASEÑA");
-			n.push("update_password");
+			}), n = await e.json();
+			if (!e.ok || !n.success) throw Error("NO SE PUDO ACTUALIZAR LA CONTRASEÑA");
+			r.push("update_password");
 		}
-		if (n.length) {
+		if (r.length) {
 			let e = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}/remove-actions`, {
 				method: "PATCH",
 				credentials: "include",
@@ -283,7 +298,7 @@ var A = "netapp_identity_channel", j = class {
 					Authorization: `Bearer ${this.accessToken}`,
 					"Content-Type": "application/json"
 				},
-				body: JSON.stringify({ actions: n })
+				body: JSON.stringify({ actions: r })
 			}), t = await e.json();
 			if (!e.ok || !t.success) throw Error("NO SE PUDO ACTUALIZAR LAS ACCIONES");
 		}
@@ -497,7 +512,7 @@ var H = t({}), U = () => n(H), W = (t) => {
 	}, [l]), S = i(() => ({
 		login: () => B.login(),
 		logout: () => B.logout(),
-		updateMailPass: (e, t) => B.updateSpecificFields(e, t),
+		updateUserProperties: (e, t, n) => B.updateSpecificFields(e, t, n),
 		tokenDecoded: B?.tokenDecoded
 	}), [
 		B,
