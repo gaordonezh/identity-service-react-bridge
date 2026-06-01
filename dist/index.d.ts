@@ -14,15 +14,10 @@ declare interface AuthenticationContentValues {
     login(): Promise<void>;
     logout(): Promise<void>;
     tokenDecoded?: JwtDecodedPayload;
-    updateUserProperties: (email: string, password: string, photo?: File) => Promise<void>;
+    updateUserProperties: (email: string, password: string, photo?: File) => Promise<string>;
 }
 
 export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;
-
-declare interface FormUpdateFields {
-    emailStr: string;
-    passwordStr: string;
-}
 
 export declare const IdentityServiceAuthenticationProvider: (props: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
 
@@ -30,13 +25,6 @@ export declare interface IdentityServiceAuthenticationProviderProps {
     appName: string;
     expireDate: Date;
     options: AuthClientOptions;
-}
-
-export declare const IdentityServiceUserFields: ({ email: needUpdateEmail, password: needUpdatePassword, omitReload, onSubmit, }: IdentityServiceUserFieldsProps) => JSX.Element;
-
-declare interface IdentityServiceUserFieldsProps extends RequiredActionsProps {
-    onSubmit: (data: FormUpdateFields) => Promise<boolean>;
-    omitReload: boolean;
 }
 
 export declare const InternalSystemAccessError: () => JSX.Element;
@@ -60,11 +48,6 @@ export declare interface JwtDecodedPayload {
     aud: Array<string>;
     iss: string;
     [x: string]: any;
-}
-
-declare interface RequiredActionsProps {
-    email: boolean;
-    password: boolean;
 }
 
 export declare const useIdentityServiceAuthentication: () => AuthenticationContentValues;
