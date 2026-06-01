@@ -96,7 +96,7 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
     () => ({
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
-      updateMailPass: (mail, pass) => ISClientInstance!.updateSpecificFields(mail, pass),
+      updateUserProperties: (mail, pass, photo) => ISClientInstance!.updateSpecificFields(mail, pass, photo),
       tokenDecoded: ISClientInstance?.tokenDecoded,
     }),
     [ISClientInstance, authenticated, isLoading],

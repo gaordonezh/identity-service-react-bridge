@@ -234,20 +234,41 @@ class IdentityServiceClient {
     this.redirect();
   }
 
-  async updateSpecificFields(email: string, password: string) {
+  async updateSpecificFields(emailStr: string, password: string, photoFile?: File) {
     const actions = [];
 
-    if (email) {
+    let photoURL = '';
+    if (photoFile) {
+      const form = new FormData();
+      form.append('file', photoFile);
+
+      const response = await fetch(`${this.options.identityUrl}/utils/upload-file`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${this.accessToken}` },
+        body: form,
+      });
+
+      const data = await response.json();
+
+      if (!data.url || !response.ok) {
+        throw new Error('UPLOAD FILED | NOT FOUND URL');
+      }
+
+      photoURL = data.url;
+    }
+
+    if (emailStr || photoURL) {
       const response = await fetch(`${this.options.identityUrl}/users/${this.tokenDecoded?.sub}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { Authorization: `Bearer ${this.accessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailStr || undefined, photo: photoURL || undefined }),
       });
       const obj = await response.json();
       if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR EL CORREO');
 
-      actions.push('update_email');
+      if (emailStr) actions.push('update_email');
     }
 
     if (password) {
