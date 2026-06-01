@@ -310,36 +310,40 @@ var A = "netapp_identity_channel", j = class {
 			e
 		]
 	})]
-}), I = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i, L = ({ email: e, password: t, onSubmit: n }) => {
-	let [o, l] = a({
+}), I = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i, L = ({ email: e, password: t, omitReload: n, onSubmit: o }) => {
+	let [l, u] = a({
 		mail: "",
 		pass: "",
 		cpass: ""
-	}), [u, d] = a(!0), [f, p] = a(!1), [m, h] = a(!1), g = async (r) => {
-		r.preventDefault(), h(!0), p(!f);
-		let i = v(), a = {};
-		e && (a.mail = i.mail), t && (a.pass = i.pass, a.cpass = i.cpass), Object.values(a).every((e) => !e) && (await n({
-			emailStr: o.mail.trim(),
-			passwordStr: o.pass.trim()
-		}) && globalThis.location.reload(), h(!1));
+	}), [d, f] = a(!0), [p, m] = a(!1), [h, g] = a(!1), _ = async (r) => {
+		r.preventDefault(), g(!0), m(!p);
+		let i = y(), a = {};
+		if (e && (a.mail = i.mail), t && (a.pass = i.pass, a.cpass = i.cpass), !Object.values(a).every((e) => !e)) {
+			g(!1);
+			return;
+		}
+		await o({
+			emailStr: l.mail.trim(),
+			passwordStr: l.pass.trim()
+		}) && !n && globalThis.location.reload(), g(!1);
 	};
 	r(() => (setTimeout(() => {
-		d(!1);
+		f(!1);
 	}, 500), () => {
-		d(!0);
+		f(!0);
 	}), []);
-	let _ = (e, t) => {
-		o[e] = t.trim().replace(/ /g, ""), l({ ...o });
-	}, v = () => ({
-		mail: !I.test(o.mail),
-		pass: o.pass.trim().length < 5,
-		cpass: !o.cpass || o.cpass !== o.pass
-	}), y = i(() => {
-		if (!u) return v();
-	}, [o, f]);
+	let v = (e, t) => {
+		l[e] = t.trim().replaceAll(" ", ""), u({ ...l });
+	}, y = () => ({
+		mail: !I.test(l.mail),
+		pass: l.pass.trim().length < 5,
+		cpass: !l.cpass || l.cpass !== l.pass
+	}), b = i(() => {
+		if (!d) return y();
+	}, [l, p]);
 	return /* @__PURE__ */ c("form", {
 		className: "sso__card",
-		onSubmit: g,
+		onSubmit: _,
 		children: [
 			/* @__PURE__ */ s("p", {
 				className: "sso__paragraph",
@@ -349,21 +353,23 @@ var A = "netapp_identity_channel", j = class {
 				className: "sso__inputgroup",
 				children: [
 					/* @__PURE__ */ s("label", {
+						htmlFor: "email_input",
 						className: "sso__inputlabel",
 						children: "Correo"
 					}),
 					/* @__PURE__ */ s("input", {
+						id: "email_input",
 						autoComplete: "email",
 						name: "email",
 						type: "email",
-						className: `sso__input${y?.mail ? " sso__input--error" : ""}`,
+						className: `sso__input${b?.mail ? " sso__input--error" : ""}`,
 						placeholder: "correo@ejemplo.com",
-						value: o.mail,
-						onChange: (e) => _("mail", e.target.value),
-						disabled: m,
-						readOnly: m
+						value: l.mail,
+						onChange: (e) => v("mail", e.target.value),
+						disabled: h,
+						readOnly: h
 					}),
-					y?.mail ? /* @__PURE__ */ s("span", {
+					b?.mail ? /* @__PURE__ */ s("span", {
 						className: "sso__inputmsg",
 						children: "Ingrese un correo válido"
 					}) : null
@@ -375,21 +381,23 @@ var A = "netapp_identity_channel", j = class {
 					className: "sso__inputgroup",
 					children: [
 						/* @__PURE__ */ s("label", {
+							htmlFor: "password_input",
 							className: "sso__inputlabel",
 							children: "Contraseña"
 						}),
 						/* @__PURE__ */ s("input", {
+							id: "password_input",
 							autoComplete: "new-password",
 							name: "password",
 							type: "text",
-							className: `sso__input${y?.pass ? " sso__input--error" : ""}`,
+							className: `sso__input${b?.pass ? " sso__input--error" : ""}`,
 							placeholder: "Ingrese su contraseña",
-							value: o.pass,
-							onChange: (e) => _("pass", e.target.value),
-							disabled: m,
-							readOnly: m
+							value: l.pass,
+							onChange: (e) => v("pass", e.target.value),
+							disabled: h,
+							readOnly: h
 						}),
-						y?.pass ? /* @__PURE__ */ s("span", {
+						b?.pass ? /* @__PURE__ */ s("span", {
 							className: "sso__inputmsg",
 							children: "Ingrese una contraseña válida"
 						}) : null
@@ -398,21 +406,23 @@ var A = "netapp_identity_channel", j = class {
 					className: "sso__inputgroup",
 					children: [
 						/* @__PURE__ */ s("label", {
+							htmlFor: "cpassword_input",
 							className: "sso__inputlabel",
 							children: "Confirme su contraseña"
 						}),
 						/* @__PURE__ */ s("input", {
+							id: "cpassword_input",
 							autoComplete: "new-password",
 							name: "cpassword",
 							type: "text",
-							className: `sso__input${y?.cpass ? " sso__input--error" : ""}`,
+							className: `sso__input${b?.cpass ? " sso__input--error" : ""}`,
 							placeholder: "Ingrese su contraseña",
-							value: o.cpass,
-							onChange: (e) => _("cpass", e.target.value),
-							disabled: m,
-							readOnly: m
+							value: l.cpass,
+							onChange: (e) => v("cpass", e.target.value),
+							disabled: h,
+							readOnly: h
 						}),
-						y?.cpass ? /* @__PURE__ */ s("span", {
+						b?.cpass ? /* @__PURE__ */ s("span", {
 							className: "sso__inputmsg",
 							children: "Las contraseñas no coinciden"
 						}) : null
@@ -422,8 +432,8 @@ var A = "netapp_identity_channel", j = class {
 			/* @__PURE__ */ s("button", {
 				className: "sso__button sso__button--full",
 				type: "submit",
-				disabled: m,
-				children: m ? "CARGANDO..." : "ACTUALIZAR"
+				disabled: h,
+				children: h ? "CARGANDO..." : "ACTUALIZAR"
 			})
 		]
 	});
@@ -471,8 +481,8 @@ var H = t({}), U = () => n(H), W = (t) => {
 		try {
 			if (!S.tokenDecoded?.sub) throw Error("NOT FOUND USER ID");
 			return await B?.updateSpecificFields(e.emailStr, e.passwordStr), !0;
-		} catch {
-			return !1;
+		} catch (e) {
+			return console.error(e), !1;
 		}
 	};
 	r(() => {
@@ -487,6 +497,7 @@ var H = t({}), U = () => n(H), W = (t) => {
 	}, [l]), S = i(() => ({
 		login: () => B.login(),
 		logout: () => B.logout(),
+		updateMailPass: (e, t) => B.updateSpecificFields(e, t),
 		tokenDecoded: B?.tokenDecoded
 	}), [
 		B,
@@ -510,6 +521,7 @@ var H = t({}), U = () => n(H), W = (t) => {
 						children: n
 					}),
 					C?.email || C?.password ? /* @__PURE__ */ s(L, {
+						omitReload: !1,
 						...C,
 						onSubmit: b
 					}) : /* @__PURE__ */ c(e, { children: [x.show && !d ? /* @__PURE__ */ s(F, { dateFormat: x.format }) : null, /* @__PURE__ */ s(z, {
@@ -535,6 +547,6 @@ var H = t({}), U = () => n(H), W = (t) => {
 	})
 });
 //#endregion
-export { W as IdentityServiceAuthenticationProvider, G as InternalSystemAccessError, V as createIdentityServiceAxiosInstance, U as useIdentityServiceAuthentication };
+export { W as IdentityServiceAuthenticationProvider, L as IdentityServiceUserFields, G as InternalSystemAccessError, V as createIdentityServiceAxiosInstance, U as useIdentityServiceAuthentication };
 
 //# sourceMappingURL=identity-service-client-lib.es.js.map
