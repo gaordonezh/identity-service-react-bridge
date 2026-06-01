@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useState, type SubmitEvent } from 'react';
 import type { FormUpdateFields, RequiredActionsProps } from '../types/global';
 
-interface RequiredActionsComponentProps extends RequiredActionsProps {
+interface IdentityServiceUserFieldsProps extends RequiredActionsProps {
   onSubmit: (data: FormUpdateFields) => Promise<boolean>;
+  omitReload: boolean;
 }
 
 const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i;
 
-const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword, onSubmit }: RequiredActionsComponentProps) => {
+const IdentityServiceUserFields = ({
+  email: needUpdateEmail,
+  password: needUpdatePassword,
+  omitReload,
+  onSubmit,
+}: IdentityServiceUserFieldsProps) => {
   const [fields, setFields] = useState({ mail: '', pass: '', cpass: '' });
   const [block, setBlock] = useState(true);
   const [forceValidate, setForceValidate] = useState(false);
@@ -34,11 +40,14 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
     }
 
     const hasErrors = Object.values(fieldsToValidate).every((item) => !item);
-    if (!hasErrors) return;
+    if (!hasErrors) {
+      setLoading(false);
+      return;
+    }
 
     const isOk = await onSubmit({ emailStr: fields.mail.trim(), passwordStr: fields.pass.trim() });
 
-    if (isOk) {
+    if (isOk && !omitReload) {
       globalThis.location.reload();
     }
 
@@ -55,7 +64,7 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
   }, []);
 
   const handleSetValue = (key: keyof typeof fields, value: string) => {
-    const cleaned = value.trim().replace(/ /g, '');
+    const cleaned = value.trim().replaceAll(' ', '');
     fields[key] = cleaned;
     setFields({ ...fields });
   };
@@ -77,8 +86,11 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
 
       {needUpdateEmail ? (
         <div className="sso__inputgroup">
-          <label className="sso__inputlabel">Correo</label>
+          <label htmlFor="email_input" className="sso__inputlabel">
+            Correo
+          </label>
           <input
+            id="email_input"
             autoComplete="email"
             name="email"
             type="email"
@@ -96,8 +108,11 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
       {needUpdatePassword ? (
         <div style={{ width: '100%' }}>
           <div className="sso__inputgroup">
-            <label className="sso__inputlabel">Contraseña</label>
+            <label htmlFor="password_input" className="sso__inputlabel">
+              Contraseña
+            </label>
             <input
+              id="password_input"
               autoComplete="new-password"
               name="password"
               type="text"
@@ -112,8 +127,11 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
           </div>
 
           <div className="sso__inputgroup">
-            <label className="sso__inputlabel">Confirme su contraseña</label>
+            <label htmlFor="cpassword_input" className="sso__inputlabel">
+              Confirme su contraseña
+            </label>
             <input
+              id="cpassword_input"
               autoComplete="new-password"
               name="cpassword"
               type="text"
@@ -136,4 +154,4 @@ const RequiredActions = ({ email: needUpdateEmail, password: needUpdatePassword,
   );
 };
 
-export default RequiredActions;
+export default IdentityServiceUserFields;

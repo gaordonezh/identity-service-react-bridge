@@ -21,6 +21,7 @@ export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
   tokenDecoded?: JwtDecodedPayload;
+  updateMailPass: (email: string, password: string) => Promise<void>;
 }
 
 export interface IdentityServiceAuthenticationProviderProps {
