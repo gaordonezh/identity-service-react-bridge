@@ -5,7 +5,7 @@ import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/ident
 import IdentityServiceClient from '../core/identity-service-client';
 import ssoImg from '../assets/sso-logo.png';
 import ExpireAlert from '../components/ExpireAlert';
-import IdentityServiceUserFields from '../components/IdentityServiceUserFields';
+import UpdateUserRequiredFields from '../components/UpdateUserRequiredFields';
 import MainActions from '../components/MainActions';
 
 let ISClientInstance: IdentityServiceClient | undefined;
@@ -118,7 +118,7 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
             <h1 className="sso__title">{appName}</h1>
 
             {actions?.email || actions?.password ? (
-              <IdentityServiceUserFields omitReload={false} {...actions} onSubmit={handleUpdate} />
+              <UpdateUserRequiredFields omitReload={false} {...actions} onSubmit={handleUpdate} />
             ) : (
               <Fragment>
                 {showAlert.show && !isLoading ? <ExpireAlert dateFormat={showAlert.format} /> : null}

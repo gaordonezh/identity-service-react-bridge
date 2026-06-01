@@ -234,7 +234,7 @@ class IdentityServiceClient {
     this.redirect();
   }
 
-  async updateSpecificFields(emailStr: string, password: string, photoFile?: File) {
+  async updateSpecificFields(emailStr: string, password: string, photoFile?: File): Promise<string> {
     const actions = [];
 
     let photoURL = '';
@@ -297,6 +297,8 @@ class IdentityServiceClient {
 
     clearRequiredAction();
     this.requiredActions = defaultRequiredOptions;
+
+    return photoURL;
   }
 }
 

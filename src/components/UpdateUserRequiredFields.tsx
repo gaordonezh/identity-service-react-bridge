@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState, type SubmitEvent } from 'react';
 import type { FormUpdateFields, RequiredActionsProps } from '../types/global';
 
-interface IdentityServiceUserFieldsProps extends RequiredActionsProps {
+interface UpdateUserRequiredFieldsProps extends RequiredActionsProps {
   onSubmit: (data: FormUpdateFields) => Promise<boolean>;
   omitReload: boolean;
 }
 
 const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i;
 
-const IdentityServiceUserFields = ({
+const UpdateUserRequiredFields = ({
   email: needUpdateEmail,
   password: needUpdatePassword,
   omitReload,
   onSubmit,
-}: IdentityServiceUserFieldsProps) => {
+}: UpdateUserRequiredFieldsProps) => {
   const [fields, setFields] = useState({ mail: '', pass: '', cpass: '' });
   const [block, setBlock] = useState(true);
   const [forceValidate, setForceValidate] = useState(false);
@@ -154,4 +154,4 @@ const IdentityServiceUserFields = ({
   );
 };
 
-export default IdentityServiceUserFields;
+export default UpdateUserRequiredFields;

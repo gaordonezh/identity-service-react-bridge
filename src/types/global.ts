@@ -21,7 +21,7 @@ export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
   tokenDecoded?: JwtDecodedPayload;
-  updateUserProperties: (email: string, password: string, photo?: File) => Promise<void>;
+  updateUserProperties: (email: string, password: string, photo?: File) => Promise<string>;
 }
 
 export interface IdentityServiceAuthenticationProviderProps {
