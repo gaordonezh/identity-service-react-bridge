@@ -25,8 +25,8 @@ export interface AuthenticationContentValues {
 }
 
 export interface IdentityServiceAuthenticationProviderProps {
+  global: boolean;
   appName: string;
-  expireDate: Date;
   options: AuthClientOptions;
 }
 
@@ -46,7 +46,7 @@ export interface JwtDecodedPayload {
    */
   sid: string;
   jti: string;
-  fullname: string;
+  photo: string;
   firstname: string;
   lastname: string;
   email: string;

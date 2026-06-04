@@ -87,7 +87,7 @@ class IdentityServiceClient {
 
     const data = await response.json();
     this.setAccessToken(data.accessToken);
-    this.requiredActions = getRequiredAction() ?? defaultRequiredOptions;
+    this.requiredActions = getRequiredAction() || defaultRequiredOptions;
 
     return true;
   }

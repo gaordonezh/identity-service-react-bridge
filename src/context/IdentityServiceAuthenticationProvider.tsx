@@ -1,12 +1,11 @@
 import { createContext, Fragment, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { type AuthenticationContentValues, type FormUpdateFields, type IdentityServiceAuthenticationProviderProps } from '../types/global';
 import axios, { AxiosError, type AxiosInstance, type CreateAxiosDefaults } from 'axios';
+import { type AuthenticationContentValues, type FormUpdateFields, type IdentityServiceAuthenticationProviderProps } from '../types/global';
 import { axiosRequestInterceptor, axiosResponseInterceptor } from '../core/identity-service-axios-interceptors';
 import IdentityServiceClient from '../core/identity-service-client';
-import ssoImg from '../assets/sso-logo.png';
-import ExpireAlert from '../components/ExpireAlert';
 import UpdateUserRequiredFields from '../components/UpdateUserRequiredFields';
-import MainActions from '../components/MainActions';
+import loaderImg from '../assets/pulse-loader.svg';
+import SSOContainer from '../components/SSOContainer';
 
 let ISClientInstance: IdentityServiceClient | undefined;
 
@@ -33,7 +32,7 @@ const AuthenticationContent = createContext({} as AuthenticationContentValues);
 export const useIdentityServiceAuthentication = (): AuthenticationContentValues => useContext(AuthenticationContent);
 
 const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => {
-  const { appName, options, expireDate, children } = props;
+  const { appName, options, global, children } = props;
 
   const [isLoading, setIsLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -83,15 +82,6 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
     initAndValidateISInstance();
   }, []);
 
-  const showAlert = useMemo(() => {
-    const y = expireDate.getFullYear();
-    const m = String(expireDate.getMonth() + 1).padStart(2, '0');
-    const d = String(expireDate.getDate()).padStart(2, '0');
-
-    const now = new Date();
-    return { show: expireDate >= now, format: `${d}/${m}/${y}` };
-  }, [expireDate]);
-
   const values: AuthenticationContentValues = useMemo(
     () => ({
       login: () => ISClientInstance!.login(),
@@ -104,30 +94,57 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
 
   const actions = ISClientInstance?.requiredActions;
 
-  const canNext = authenticated && !isLoading && !actions?.email && !actions?.password && !!ISClientInstance;
-
   return (
     <AuthenticationContent.Provider value={values}>
-      {canNext ? (
-        children
+      {ISClientInstance ? (
+        <Fragment>
+          {isLoading ? (
+            <SSOContainer name={appName}>
+              <img src={loaderImg} alt="loader" />
+            </SSOContainer>
+          ) : (
+            <Fragment>
+              {authenticated ? (
+                <Fragment>
+                  {actions?.email || actions?.password ? (
+                    <SSOContainer name={appName}>
+                      <UpdateUserRequiredFields {...actions} onSubmit={handleUpdate} />
+                    </SSOContainer>
+                  ) : (
+                    <Fragment>{children}</Fragment>
+                  )}
+                </Fragment>
+              ) : (
+                <Fragment>
+                  {isInvalid ? (
+                    <SSOContainer name={appName}>
+                      <p className="sso__paragraph sso__paragraph--error">Cliente inválido</p>
+                    </SSOContainer>
+                  ) : (
+                    <Fragment>
+                      {global ? (
+                        <SSOContainer name={appName}>
+                          <p className="sso__paragraph">
+                            Continue con el <b>SSO Netappperu SAC</b> siguiendo los pasos que se le indique...
+                          </p>
+                          <button className="sso__button sso__button--full" onClick={() => values.login()}>
+                            INGRESAR CON SSO NETAPPPERU
+                          </button>
+                        </SSOContainer>
+                      ) : (
+                        <Fragment>{children}</Fragment>
+                      )}
+                    </Fragment>
+                  )}
+                </Fragment>
+              )}
+            </Fragment>
+          )}
+        </Fragment>
       ) : (
-        <main className="sso__main">
-          <div className="sso__card">
-            <img src={ssoImg} className="sso__image" alt="sso" />
-
-            <h1 className="sso__title">{appName}</h1>
-
-            {actions?.email || actions?.password ? (
-              <UpdateUserRequiredFields omitReload={false} {...actions} onSubmit={handleUpdate} />
-            ) : (
-              <Fragment>
-                {showAlert.show && !isLoading ? <ExpireAlert dateFormat={showAlert.format} /> : null}
-
-                <MainActions invalid={isInvalid} loading={isLoading} onLogin={() => values.login()} />
-              </Fragment>
-            )}
-          </div>
-        </main>
+        <SSOContainer name={appName}>
+          <p className="sso__paragraph sso__paragraph--error">ERROR FATAL</p>
+        </SSOContainer>
       )}
     </AuthenticationContent.Provider>
   );

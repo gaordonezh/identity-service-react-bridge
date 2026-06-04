@@ -4,7 +4,7 @@ const InternalSystemAccessError = () => {
       <div className="sso__card">
         <h1 className="sso__title">Ocurrió un error</h1>
         <p className="sso__paragraph">
-          No se obtuvo la información del usuario desde el <code>servidor interno</code>
+          No se obtuvo la información del usuario desde el <b>servidor interno</b>
         </p>
       </div>
     </main>
