@@ -22,8 +22,8 @@ export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAx
 export declare const IdentityServiceAuthenticationProvider: (props: PropsWithChildren<IdentityServiceAuthenticationProviderProps>) => JSX.Element;
 
 export declare interface IdentityServiceAuthenticationProviderProps {
+    global: boolean;
     appName: string;
-    expireDate: Date;
     options: AuthClientOptions;
 }
 
@@ -39,7 +39,7 @@ export declare interface JwtDecodedPayload {
      */
     sid: string;
     jti: string;
-    fullname: string;
+    photo: string;
     firstname: string;
     lastname: string;
     email: string;
