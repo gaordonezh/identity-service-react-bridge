@@ -1,4 +1,4 @@
-import { type AuthClientOptions, type JwtDecodedPayload, type RequiredActionsProps } from '../types/global';
+import { UserRequiredActionsEnum, type AuthClientOptions, type JwtDecodedPayload, type RequiredActionsProps } from '../types/global';
 import { generatePKCE } from '../utils/pkce';
 import {
   savePKCE,
@@ -123,6 +123,44 @@ class IdentityServiceClient {
     this.broadcast.publish('LOGIN');
 
     globalThis.location.href = url.toString();
+  }
+
+  async loginRequest(username: string, password: string) {
+    const { verifier, challenge } = await generatePKCE();
+    const state = crypto.randomUUID();
+
+    const response = await fetch(`${this.options.identityUrl}/auth/sign-in`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username,
+        password,
+        state: state,
+        code_challenge: challenge,
+        code_verifier: verifier,
+        client_id: this.options.clientId,
+        redirect_uri: this.options.redirectUri,
+        logout_uri: this.options.logoutRedirectUri,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Unexpected error');
+    }
+
+    const data: { accessToken: string; requiredActions: Array<string> } = await response.json();
+
+    if (data.requiredActions.length) {
+      const pwd = data.requiredActions.includes(UserRequiredActionsEnum.UPDATE_PASSWORD);
+      const mail = data.requiredActions.includes(UserRequiredActionsEnum.UPDATE_EMAIL);
+
+      const obj: RequiredActionsProps = { email: mail, password: pwd };
+      saveRequiredAction(obj);
+      this.requiredActions = obj;
+    }
+
+    this.setAccessToken(data.accessToken);
   }
 
   async handleCallback(): Promise<'error' | 'success' | 'check'> {
@@ -268,7 +306,9 @@ class IdentityServiceClient {
       const obj = await response.json();
       if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR EL CORREO');
 
-      if (emailStr) actions.push('update_email');
+      if (emailStr) {
+        actions.push(UserRequiredActionsEnum.UPDATE_EMAIL);
+      }
     }
 
     if (password) {
@@ -281,7 +321,7 @@ class IdentityServiceClient {
       const obj = await response.json();
       if (!response.ok || !obj.success) throw new Error('NO SE PUDO ACTUALIZAR LA CONTRASEÑA');
 
-      actions.push('update_password');
+      actions.push(UserRequiredActionsEnum.UPDATE_PASSWORD);
     }
 
     if (actions.length) {

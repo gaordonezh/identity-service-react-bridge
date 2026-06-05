@@ -1,5 +1,10 @@
 import type { AxiosRequestConfig } from 'axios';
 
+export enum UserRequiredActionsEnum {
+  UPDATE_EMAIL = 'update_email',
+  UPDATE_PASSWORD = 'update_password',
+}
+
 export interface AuthClientOptions {
   clientId: string;
   identityUrl: string;
@@ -20,6 +25,7 @@ export interface FormUpdateFields {
 export interface AuthenticationContentValues {
   login(): Promise<void>;
   logout(): Promise<void>;
+  loginRequest(username: string, password: string): Promise<void>;
   tokenDecoded?: JwtDecodedPayload;
   updateUserProperties: (email: string, password: string, photo?: File) => Promise<string>;
 }

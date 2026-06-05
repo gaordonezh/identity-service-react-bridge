@@ -86,6 +86,7 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
     () => ({
       login: () => ISClientInstance!.login(),
       logout: () => ISClientInstance!.logout(),
+      loginRequest: (username, password) => ISClientInstance!.loginRequest(username, password),
       updateUserProperties: (mail, pass, photo) => ISClientInstance!.updateSpecificFields(mail, pass, photo),
       tokenDecoded: ISClientInstance?.tokenDecoded,
     }),
@@ -96,55 +97,47 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
 
   return (
     <AuthenticationContent.Provider value={values}>
-      {ISClientInstance ? (
+      {isLoading ? (
+        <SSOContainer name={appName}>
+          <img src={loaderImg} alt="loader" />
+        </SSOContainer>
+      ) : (
         <Fragment>
-          {isLoading ? (
-            <SSOContainer name={appName}>
-              <img src={loaderImg} alt="loader" />
-            </SSOContainer>
+          {authenticated ? (
+            <Fragment>
+              {actions?.email || actions?.password ? (
+                <SSOContainer name={appName}>
+                  <UpdateUserRequiredFields {...actions} onSubmit={handleUpdate} />
+                </SSOContainer>
+              ) : (
+                <Fragment>{children}</Fragment>
+              )}
+            </Fragment>
           ) : (
             <Fragment>
-              {authenticated ? (
+              {isInvalid ? (
+                <SSOContainer name={appName}>
+                  <p className="sso__paragraph sso__paragraph--error">Cliente inválido</p>
+                </SSOContainer>
+              ) : (
                 <Fragment>
-                  {actions?.email || actions?.password ? (
+                  {global ? (
                     <SSOContainer name={appName}>
-                      <UpdateUserRequiredFields {...actions} onSubmit={handleUpdate} />
+                      <p className="sso__paragraph">
+                        Continue con el <b>SSO Netappperu SAC</b> siguiendo los pasos que se le indique...
+                      </p>
+                      <button className="sso__button sso__button--full" onClick={() => values.login()}>
+                        INGRESAR CON SSO NETAPPPERU
+                      </button>
                     </SSOContainer>
                   ) : (
                     <Fragment>{children}</Fragment>
-                  )}
-                </Fragment>
-              ) : (
-                <Fragment>
-                  {isInvalid ? (
-                    <SSOContainer name={appName}>
-                      <p className="sso__paragraph sso__paragraph--error">Cliente inválido</p>
-                    </SSOContainer>
-                  ) : (
-                    <Fragment>
-                      {global ? (
-                        <SSOContainer name={appName}>
-                          <p className="sso__paragraph">
-                            Continue con el <b>SSO Netappperu SAC</b> siguiendo los pasos que se le indique...
-                          </p>
-                          <button className="sso__button sso__button--full" onClick={() => values.login()}>
-                            INGRESAR CON SSO NETAPPPERU
-                          </button>
-                        </SSOContainer>
-                      ) : (
-                        <Fragment>{children}</Fragment>
-                      )}
-                    </Fragment>
                   )}
                 </Fragment>
               )}
             </Fragment>
           )}
         </Fragment>
-      ) : (
-        <SSOContainer name={appName}>
-          <p className="sso__paragraph sso__paragraph--error">ERROR FATAL</p>
-        </SSOContainer>
       )}
     </AuthenticationContent.Provider>
   );
