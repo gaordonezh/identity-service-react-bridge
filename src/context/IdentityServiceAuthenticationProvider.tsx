@@ -89,6 +89,7 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
       loginRequest: (username, password) => ISClientInstance!.loginRequest(username, password),
       updateUserProperties: (mail, pass, photo) => ISClientInstance!.updateSpecificFields(mail, pass, photo),
       tokenDecoded: ISClientInstance?.tokenDecoded,
+      isUnauthorized: !!ISClientInstance?.unauthorized,
     }),
     [ISClientInstance, authenticated, isLoading],
   );
@@ -123,12 +124,26 @@ const IdentityServiceAuthenticationProvider = (props: PropsWithChildren<Identity
                 <Fragment>
                   {global ? (
                     <SSOContainer name={appName}>
-                      <p className="sso__paragraph">
-                        Continue con el <b>SSO Netappperu SAC</b> siguiendo los pasos que se le indique...
-                      </p>
-                      <button className="sso__button sso__button--full" onClick={() => values.login()}>
-                        INGRESAR CON SSO NETAPPPERU
-                      </button>
+                      {values.isUnauthorized ? (
+                        <Fragment>
+                          <p className="sso__paragraph">
+                            Has intentado acceder a una página para la que <b>no tienes permiso</b>. Consulta los sistemas a los que tienes acceso
+                            para continuar.
+                          </p>
+                          <button className="sso__button sso__button--full" onClick={() => (window.location.href = 'https://sso.netappperu.com')}>
+                            VER MI SESIÓN
+                          </button>
+                        </Fragment>
+                      ) : (
+                        <Fragment>
+                          <p className="sso__paragraph">
+                            Continue con el <b>SSO Netappperu SAC</b> y siga las instrucciones que se muestran en pantalla.
+                          </p>
+                          <button className="sso__button sso__button--full" onClick={() => values.login()}>
+                            INGRESAR CON SSO NETAPPPERU
+                          </button>
+                        </Fragment>
+                      )}
                     </SSOContainer>
                   ) : (
                     <Fragment>{children}</Fragment>

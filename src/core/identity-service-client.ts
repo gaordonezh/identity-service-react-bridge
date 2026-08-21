@@ -23,6 +23,7 @@ class IdentityServiceClient {
   private readonly broadcast = new AuthBroadcast();
   public tokenDecoded: JwtDecodedPayload | undefined;
   public requiredActions: RequiredActionsProps = defaultRequiredOptions;
+  public unauthorized: boolean = false;
 
   constructor(private readonly options: AuthClientOptions) {
     this.broadcast.subscribe((event) => {
@@ -78,6 +79,8 @@ class IdentityServiceClient {
         logout_uri: this.options.logoutRedirectUri,
       }),
     });
+
+    this.unauthorized = response.status === 403;
 
     if (!response.ok) {
       this.setAccessToken(null);
