@@ -14,8 +14,9 @@ declare interface AuthenticationContentValues {
     login(): Promise<void>;
     logout(): Promise<void>;
     loginRequest(username: string, password: string): Promise<void>;
-    tokenDecoded?: JwtDecodedPayload;
     updateUserProperties: (email: string, password: string, photo?: File) => Promise<string>;
+    tokenDecoded?: JwtDecodedPayload;
+    isUnauthorized: boolean;
 }
 
 export declare function createIdentityServiceAxiosInstance(initConfig?: CreateAxiosDefaults): AxiosInstance;

@@ -137,6 +137,7 @@ var j = "netapp_identity_channel", M = class {
 	broadcast = new M();
 	tokenDecoded;
 	requiredActions = N;
+	unauthorized = !1;
 	constructor(e) {
 		this.options = e, this.broadcast.subscribe((e) => {
 			e === "LOGOUT" && (this.setAccessToken(null), this.redirect());
@@ -174,7 +175,7 @@ var j = "netapp_identity_channel", M = class {
 				logout_uri: this.options.logoutRedirectUri
 			})
 		});
-		if (!e.ok) return this.setAccessToken(null), this.broadcast.publish("SESSION_EXPIRED"), !1;
+		if (this.unauthorized = e.status === 403, !e.ok) return this.setAccessToken(null), this.broadcast.publish("SESSION_EXPIRED"), !1;
 		let t = await e.json();
 		return this.setAccessToken(t.accessToken), this.requiredActions = w() || N, !0;
 	}
@@ -516,7 +517,8 @@ var H = t({}), U = () => n(H), W = (t) => {
 		logout: () => B.logout(),
 		loginRequest: (e, t) => B.loginRequest(e, t),
 		updateUserProperties: (e, t, n) => B.updateSpecificFields(e, t, n),
-		tokenDecoded: B?.tokenDecoded
+		tokenDecoded: B?.tokenDecoded,
+		isUnauthorized: !!B?.unauthorized
 	}), [
 		B,
 		p,
@@ -542,20 +544,31 @@ var H = t({}), U = () => n(H), W = (t) => {
 				className: "sso__paragraph sso__paragraph--error",
 				children: "Cliente inválido"
 			})
-		}) : /* @__PURE__ */ s(e, { children: l ? /* @__PURE__ */ c(z, {
+		}) : /* @__PURE__ */ s(e, { children: l ? /* @__PURE__ */ s(z, {
 			name: n,
-			children: [/* @__PURE__ */ c("p", {
+			children: x.isUnauthorized ? /* @__PURE__ */ c(e, { children: [/* @__PURE__ */ c("p", {
+				className: "sso__paragraph",
+				children: [
+					"Has intentado acceder a una página para la que ",
+					/* @__PURE__ */ s("b", { children: "no tienes permiso" }),
+					". Consulta los sistemas a los que tienes acceso para continuar."
+				]
+			}), /* @__PURE__ */ s("button", {
+				className: "sso__button sso__button--full",
+				onClick: () => window.location.href = "https://sso.netappperu.com",
+				children: "VER MI SESIÓN"
+			})] }) : /* @__PURE__ */ c(e, { children: [/* @__PURE__ */ c("p", {
 				className: "sso__paragraph",
 				children: [
 					"Continue con el ",
 					/* @__PURE__ */ s("b", { children: "SSO Netappperu SAC" }),
-					" siguiendo los pasos que se le indique..."
+					" y siga las instrucciones que se muestran en pantalla."
 				]
 			}), /* @__PURE__ */ s("button", {
 				className: "sso__button sso__button--full",
 				onClick: () => x.login(),
 				children: "INGRESAR CON SSO NETAPPPERU"
-			})]
+			})] })
 		}) : /* @__PURE__ */ s(e, { children: u }) }) }) })
 	});
 }, G = () => /* @__PURE__ */ s("main", {
